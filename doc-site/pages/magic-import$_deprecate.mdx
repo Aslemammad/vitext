@@ -1,0 +1,68 @@
+---
+title: Magic Import
+sort: 4
+---
+
+# Magic import
+
+Vite-pages support "magic import". Magic import is **normal esModule import sytax** with **tailored path convention**. It enable users to import things with special behavior. Users can use it to do powerful things.
+
+> If you are familiar with the webpack loader mechanism, you can easily guess how magic import works.
+
+## Analyze source code
+
+When you are documenting for some JavaScript/Typescript library, you normally want to show some js/ts code to readers. This magic import help you load source code from a module. It is kind of like [raw-loader from webpack](https://webpack.js.org/loaders/raw-loader/). This is very useful for demo code displaying.
+
+You can get the module tree analysis by importing the module with query `?analyzeSource`.
+
+For example:
+
+```ts
+import demoSource from '../demos/demo1?analyzeSource'
+```
+
+will give you:
+
+```ts
+{
+  "entry": "demo1.tsx",
+  "modules": {
+    "dir/util.ts": {
+      "code": "the source code of dir/util.ts..."
+    },
+    "demo1.module.css": {
+      "code": "the source code of demo1.module.css..."
+    },
+    "demo1.tsx": {
+      "code": "the source code of demo1.tsx..."
+    }
+  },
+  "externals": {
+    "react": "^16.13.1",
+    "antd": "^4.4.1"
+  }
+}
+```
+
+Checkout the [analyze-source-code fixture](https://github.com/vitejs/vite-plugin-react-pages/blob/master/fixtures/analyze-source-code/pages/index$.tsx) for an example.
+
+### Relative module dependencies
+
+For relative module dependencies(.e.g `import util from './dir/util.ts'`), their source code will be collected into the analyze result, as shown by the previous example.
+
+Relative module import can be js, jsx, ts, tsx, css, sass, etc.
+
+### External module dependencies
+
+For those dependencies from `node_modules` (.e.g `import React from 'react'`), this magic import will **not** load source code for them. Instead, the dependencies' versions are recorded, as shown by the previous example.
+
+This magic import gets dependencies' versions by find `package.json` up from the importer, and find the package version from these `package.json` fields:
+
+- `peerDependencies`
+- `devDependencies`
+- `dependencies`
+- `demoDependencies`
+
+## More magic imports?
+
+If you come up with more useful magic imports, [feel free to open an issue or PR](https://github.com/vitejs/vite-plugin-react-pages/issues). Contributions are always welcomed!
