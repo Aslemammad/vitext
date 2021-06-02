@@ -1,8 +1,6 @@
 {
-  "name": "vite-playground",
+  "name": "vitext-playground",
   "version": "1.0.0",
   "private": true,
-  "devDependencies": {
-    "css-color-names": "^1.0.1"
-  }
+  "devDependencies": {}
 }

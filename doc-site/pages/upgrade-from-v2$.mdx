@@ -17,7 +17,7 @@ Upgrade these package versions:
     "@vitejs/plugin-react-refresh": "^1.3.1",
     "vite": "^2.0.5",
     "vite-plugin-mdx": "^3.3.1",
-    "vite-plugin-react-pages": "^3.0.0",
+    "vitext": "^3.0.0",
     "vite-pages-theme-basic": "^3.0.0"
   }
 }
@@ -36,13 +36,13 @@ Upgrade these package versions:
 }
 ```
 
-> [vite-plugin-mdx](https://github.com/brillout/vite-plugin-mdx) has been moved to a seperate repo. ([related issue](https://github.com/vitejs/vite-plugin-react-pages/issues/6))
+> [vite-plugin-mdx](https://github.com/brillout/vite-plugin-mdx) has been moved to a seperate repo. ([related issue](https://github.com/vitejs/vitext/issues/6))
 
 ## A Small update to theme API
 
 > **If you have only used the basic theme and haven't created a custom theme. You don't need to care about this API change.**
 
-In `vite-plugin-react-pages@3.x`, vite-pages don't pass staticData to the theme component any more. You should use the hook `useStaticData` to get staticData. This API update is for less prop drilling and more efficient HMR update during dev.
+In `vitext@3.x`, vite-pages don't pass staticData to the theme component any more. You should use the hook `useStaticData` to get staticData. This API update is for less prop drilling and more efficient HMR update during dev.
 
 ```ts
 interface ThemeProps {
@@ -53,7 +53,7 @@ interface ThemeProps {
 
 /**
  * A react hook to get static data.
- * import { useStaticData } from 'vite-plugin-react-pages/client'
+ * import { useStaticData } from 'vitext/client'
  */
 export interface UseStaticData {
   (): PagesStaticData
@@ -61,14 +61,14 @@ export interface UseStaticData {
 }
 ```
 
-Here is an [example upgrade commit](https://github.com/vitejs/vite-plugin-react-pages/commit/61f0fa0223ef28c526dfc7bd87bafd8de2523c38#diff-e18e1392eaf0be6f307cc5ba266f589b1517c4d991d6e0d5006c339fbe4b7ff6).
+Here is an [example upgrade commit](https://github.com/vitejs/vitext/commit/61f0fa0223ef28c526dfc7bd87bafd8de2523c38#diff-e18e1392eaf0be6f307cc5ba266f589b1517c4d991d6e0d5006c339fbe4b7ff6).
 
 ## findPages API change
 
 > **If you have only used the "Basic Filesystem Routing Convention" and haven't used `findPages` to do "Advanced Filesystem Routing". You don't need to care about this API change.**
 
-Previously, `vite-plugin-react-pages` don't react to the change from the fileSystem. If there is file add/update/unlink that will result in different pageData, you need to restart the dev server.
-In `vite-plugin-react-pages@3.x`, vite-pages use chokidar to scan the fileSystem and watch for files.
+Previously, `vitext` don't react to the change from the fileSystem. If there is file add/update/unlink that will result in different pageData, you need to restart the dev server.
+In `vitext@3.x`, vite-pages use chokidar to scan the fileSystem and watch for files.
 
 > Thanks [Alec Larson](https://github.com/aleclarson) for the idea and initial implementation.
 

@@ -1,6 +1,6 @@
 # create-vite-pages
 
-Create a [vite-pages](https://github.com/vitejs/vite-plugin-react-pages) project.
+Create a [vite-pages](https://github.com/vitejs/vitext) project.
 
 ```
 npm init vite-pages [new-directory-name] --template [app|lib|lib-monorepo]

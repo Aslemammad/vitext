@@ -1,6 +1,6 @@
 ## vite-pages library starter
 
-This is a demo project for [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages).
+This is a demo project for [vitext](https://github.com/vitejs/vitext).
 This project demonstrate how to develop a library using vite as your local develop envirenment.
 
 # How to use
@@ -18,4 +18,4 @@ Edit `src/Button/demos/demo1.tsx` or other demo files, the demos will inflect yo
 
 ---
 
-Checkout [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages) for more info.
+Checkout [vitext](https://github.com/vitejs/vitext) for more info.

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import * as path from 'path'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import mdx from 'vite-plugin-mdx'
-import pages from 'vite-plugin-react-pages'
+import pages from 'vitext'
 
 export default defineConfig({
   plugins: [

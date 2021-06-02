@@ -4,7 +4,7 @@ export default createTheme({
   topNavs: [
     {
       text: '⭐ Github',
-      href: 'https://github.com/vitejs/vite-plugin-react-pages',
+      href: 'https://github.com/vitejs/vitext',
     },
   ],
   logo: 'Vite Pages',

@@ -2,7 +2,7 @@ import type { UserConfig } from 'vite'
 import * as path from 'path'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import mdx from 'vite-plugin-mdx'
-import pages, { DefaultPageStrategy } from 'vite-plugin-react-pages'
+import pages, { DefaultPageStrategy } from 'vitext'
 
 module.exports = {
   jsx: 'react',
@@ -28,8 +28,7 @@ module.exports = {
               runtimeDataPaths[demoPath] = absolute
               const staticData = api.getStaticData(pageId)
               staticData[demoPath] = await helpers.extractStaticData(file)
-              if (!staticData.title)
-                staticData.title = `${componentName} Title`
+              if (!staticData.title) staticData.title = `${componentName} Title`
             }
           )
 

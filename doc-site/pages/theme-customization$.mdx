@@ -25,11 +25,11 @@ import ThemeInterface from './theme-interface.mdx'
 
 You can learn more about the "data" received by the render functions in <Link to="/page-data">the page data doc</Link>.
 
-This is probably [the simplest theme](https://github.com/vitejs/vite-plugin-react-pages/blob/master/packages/playground/basic/pages/_theme.tsx):
+This is probably [the simplest theme](https://github.com/vitejs/vitext/blob/master/packages/playground/basic/pages/_theme.tsx):
 
 ```tsx
 import React, { useMemo } from 'react'
-import type { Theme } from 'vite-plugin-react-pages'
+import type { Theme } from 'vitext'
 
 const Theme: Theme = ({ staticData, loadedData, loadState }) => {
   console.log('#Theme', staticData, loadedData, loadState)
@@ -52,7 +52,7 @@ const Theme: Theme = ({ staticData, loadedData, loadState }) => {
 export default Theme
 ```
 
-> Here is a more useful theme: [vite-pages-theme-basic](https://github.com/vitejs/vite-plugin-react-pages/blob/master/packages/theme-basic/src/index.tsx). [This fixture](https://github.com/vitejs/vite-plugin-react-pages/blob/master/packages/playground/use-theme/pages/_theme.tsx) demonstrate how to use it.
+> Here is a more useful theme: [vite-pages-theme-basic](https://github.com/vitejs/vitext/blob/master/packages/theme-basic/src/index.tsx). [This fixture](https://github.com/vitejs/vitext/blob/master/packages/playground/use-theme/pages/_theme.tsx) demonstrate how to use it.
 
 You can customize every bits of UI with theme. Welcome to share your theme with a npm package!
 
@@ -104,7 +104,7 @@ As you can see, the theme is easier to use because **theme consumers don't need 
 
 For this reason, we encourage theme providers to export config function like the `createTheme` above.
 
-> You can refer to [vite-pages-theme-basic](https://github.com/vitejs/vite-plugin-react-pages/blob/master/packages/theme-basic/src/index.tsx)
+> You can refer to [vite-pages-theme-basic](https://github.com/vitejs/vitext/blob/master/packages/theme-basic/src/index.tsx)
 
 #### Release the power of Typescript
 

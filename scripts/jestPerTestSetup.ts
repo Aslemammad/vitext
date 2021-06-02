@@ -22,8 +22,8 @@ let server: ViteDevServer | http.Server
 let tempDir: string
 let err: Error
 
-const logs: string[] = ((global as any).browserLogs = [])
-const onConsole = (msg: any) => {
+const logs = ((global as any).browserLogs = [])
+const onConsole = (msg) => {
   logs.push(msg.text())
 }
 
@@ -53,7 +53,7 @@ beforeAll(async () => {
             !file.includes('node_modules') &&
             !file.match(/dist(\/|$)/)
           )
-        },
+        }
       })
 
       const testCustomServe = resolve(dirname(testPath), 'serve.js')
@@ -72,14 +72,14 @@ beforeAll(async () => {
             // During tests we edit the files too fast and sometimes chokidar
             // misses change events, so enforce polling for consistency
             usePolling: true,
-            interval: 100,
-          },
+            interval: 100
+          }
         },
         build: {
           // skip transpilation and dynamic import polyfills during tests to
           // make it faster
-          target: 'esnext',
-        },
+          target: 'esnext'
+        }
       }
 
       if (!isBuildTest) {
@@ -120,7 +120,6 @@ function startStaticServer(): Promise<string> {
   try {
     config = require(configFile)
   } catch (e) {}
-  // @ts-ignore
   const base = (config?.base || '/') === '/' ? '' : config.base
 
   // @ts-ignore
@@ -130,7 +129,7 @@ function startStaticServer(): Promise<string> {
   }
 
   // start static file server
-  const serve = sirv(resolve(tempDir, 'dist'), { single: true })
+  const serve = sirv(resolve(tempDir, 'dist'))
   const httpServer = (server = http.createServer((req, res) => {
     if (req.url === '/ping') {
       res.statusCode = 200

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Nav, Shell, ConfigProvider } from '@alifd/next'
 import 'github-markdown-css/github-markdown.css'
-import type { PagesStaticData } from 'vite-plugin-react-pages'
+import type { PagesStaticData } from 'vitext'
 
 import s from './style.module.css'
 import './global.css'

@@ -1,8 +1,8 @@
-# vite-plugin-react-pages doc site
+# vitext doc site
 
-This is the document site of [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages). It also serves as an example.
+This is the document site of [vitext](https://github.com/vitejs/vitext). It also serves as an example.
 
-This site is deployed at [github page](https://vitejs.github.io/vite-plugin-react-pages/).
+This site is deployed at [github page](https://vitejs.github.io/vitext/).
 
 ## How to use
 

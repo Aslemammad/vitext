@@ -1,6 +1,6 @@
 ## vite-pages library-monorepo starter
 
-This is a demo project for [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages).
+This is a demo project for [vitext](https://github.com/vitejs/vitext).
 This project demonstrate how to develop libraries **in monorepo** using vite as your local develop envirenment.
 
 # How to use
@@ -20,4 +20,4 @@ Edit `packages/button/demos/demo1.tsx` or other demo files, the demos will infle
 
 ---
 
-Checkout [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages) for more info.
+Checkout [vitext](https://github.com/vitejs/vitext) for more info.

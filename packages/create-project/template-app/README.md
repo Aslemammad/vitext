@@ -1,7 +1,7 @@
 ## vite-pages app starter
 
-This is a demo project for [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages).
-This project demonstrate how to develop a React app using [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages) as framework.
+This is a demo project for [vitext](https://github.com/vitejs/vitext).
+This project demonstrate how to develop a React app using [vitext](https://github.com/vitejs/vitext) as framework.
 
 # How to use
 
@@ -17,4 +17,4 @@ Edit `pages/page1$.tsx` or other souce files, the playground will inflect your c
 
 ---
 
-Checkout [vite-plugin-react-pages](https://github.com/vitejs/vite-plugin-react-pages) for more info.
+Checkout [vitext](https://github.com/vitejs/vitext) for more info.

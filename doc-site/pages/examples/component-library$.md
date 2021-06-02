@@ -38,7 +38,7 @@ import type { UserConfig } from 'vite'
 import * as path from 'path'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import mdx from 'vite-plugin-mdx'
-import pages, { DefaultPageStrategy } from 'vite-plugin-react-pages'
+import pages, { DefaultPageStrategy } from 'vitext'
 
 module.exports = {
   plugins: [
@@ -102,7 +102,7 @@ module.exports = {
 
 We use `api.getRuntimeData(pageId)` and `api.getStaticData(pageId)` inside fileHandlers to get the pageData object. We can mutate the data object, and vite-pages will update its pages accordingly.
 
-Checkout the complete example in [the custom-find-pages fixture](https://github.com/vitejs/vite-plugin-react-pages/blob/master/packages/playground/custom-find-pages).
+Checkout the complete example in [the custom-find-pages fixture](https://github.com/vitejs/vitext/blob/master/packages/playground/custom-find-pages).
 Or you can **initialize such a project in one command**: `npm init vite-pages library-demo --template lib`
 
 ## Monorepo
@@ -143,5 +143,5 @@ packages
 └── package.json
 ```
 
-Checkout the complete example in [the lib-monorepo fixture](https://github.com/vitejs/vite-plugin-react-pages/tree/master/packages/playground/lib-monorepo).
+Checkout the complete example in [the lib-monorepo fixture](https://github.com/vitejs/vitext/tree/master/packages/playground/lib-monorepo).
 Or you can **initialize such a project in one command**: `npm init vite-pages library-monorepo-demo --template lib-monorepo`.

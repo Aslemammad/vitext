@@ -1,5 +1,5 @@
 {
-  "name": "vite-pages-theme-basic",
+  "name": "vitext-theme-basic",
   "version": "3.0.1",
   "main": "lib/index.js",
   "module": "dist/index.js",
@@ -7,7 +7,7 @@
   "keywords": [
     "vite",
     "react",
-    "vite-plugin-react-pages",
+    "vitext",
     "theme"
   ],
   "license": "MIT",
@@ -20,6 +20,7 @@
     "db": "node --inspect ./node_modules/rollup/dist/bin/rollup -c"
   },
   "peerDependencies": {
+    "vitext": "latest",
     "@mdx-js/react": "^1.6.11"
   },
   "devDependencies": {
@@ -45,8 +46,7 @@
     "rollup": "^2.41.2",
     "rollup-plugin-postcss": "^4.0.0",
     "sass": "^1.32.8",
-    "typescript": "^4.2.3",
-    "vite-plugin-react-pages": "workspace:*"
+    "typescript": "^4.2.3"
   },
   "dependencies": {
     "github-markdown-css": "^4.0.0"

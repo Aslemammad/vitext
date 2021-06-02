@@ -6,7 +6,7 @@ export default createTheme({
     { text: 'Vite', href: 'https://github.com/vitejs/vite' },
     {
       text: 'Vite Pages',
-      href: 'https://github.com/vitejs/vite-plugin-react-pages',
+      href: 'https://github.com/vitejs/vitext',
     },
   ],
   logo: 'Vite Pages',
