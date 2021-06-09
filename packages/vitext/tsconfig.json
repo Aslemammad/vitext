@@ -4,7 +4,6 @@
     "target": "ESNext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
-    "lib": ["ESNext","DOM"],
-
-  },
+    "lib": ["ESNext", "DOM"]
+  }
 }
