@@ -1,15 +1,15 @@
 {
-    "include": ["."],
-    "exclude": ["**/dist/**"],
-    "compilerOptions": {
-      "target": "es2019",
-      "outDir": "dist",
-      "allowJs": true,
-      "esModuleInterop": true,
-      "moduleResolution": "node",
-      "baseUrl": ".",
-      "jsx": "preserve",
-      "types": ["vitext/client", "jest", "node"]
-    }
+  "include": ["."],
+  "exclude": ["**/dist/**"],
+  "compilerOptions": {
+    "target": "es2019",
+    "outDir": "dist",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "jsx": "react",
+    "lib": ["ESNext", "ES2020.String", "ES2020", "DOM"],
+    "types": ["vitext/client", "jest", "node"]
   }
-  
+}

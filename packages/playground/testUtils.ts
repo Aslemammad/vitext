@@ -1,12 +1,11 @@
 // test utils used in e2e tests for playgrounds.
 // this can be directly imported in any playground tests as 'testUtils', e.g.
 // `import { getColor } from 'testUtils'`
-
+import colors from 'css-color-names';
 import fs from 'fs';
 import path from 'path';
-import slash from 'slash';
-import colors from 'css-color-names';
 import type { ElementHandle } from 'playwright-chromium';
+import slash from 'slash';
 
 export const isBuild = !!process.env.VITE_TEST_BUILD;
 

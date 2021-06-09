@@ -1,11 +1,15 @@
-/**
- * @title index page
- */
-
-import React from 'react'
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const IndexPage = () => {
-  return <div>IndexPage</div>
-}
+  return (
+    <>
+      <Helmet>
+        <title>Hello World</title>
+      </Helmet>
+      <div id="test">IndexPage</div>
+    </>
+  );
+};
 
-export default IndexPage
+export default IndexPage;
