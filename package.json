@@ -12,7 +12,6 @@
     "debug-build": "cross-env VITE_TEST_BUILD=1 VITE_PRESERVE_BUILD_ARTIFACTS=1 jest"
   },
   "devDependencies": {
-    "@pnpm/link-bins": "^5.3.24",
     "@types/jest": "^26.0.19",
     "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.34",
@@ -30,8 +29,19 @@
     "typescript": "^4.2.3",
     "vite": "^2.3.6"
   },
-  "workspaces": [
-    "packages/*",
-    "packages/playground/*"
-  ]
+  "workspaces": ["packages/*", "packages/playground/*"],
+  "gitHooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*.js,*.jsx": ["prettier --write"],
+    "*.ts,*.tsx": ["eslint", "prettier --parser=typescript --write"],
+    "*.html": ["prettier --write"]
+  },
+  "dependencies": {
+    "-": "^0.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^2.0.2",
+    "D": "^1.0.0"
+  }
 }
