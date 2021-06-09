@@ -1,20 +1,18 @@
+import * as glob from 'fast-glob';
 import fs from 'fs';
-import { glob } from 'glob';
 import * as path from 'path';
-import React from 'react';
-import ReactDOM from 'react-dom/server';
 import type { Plugin } from 'vite';
-import type { MdxPlugin } from 'vite-plugin-mdx/dist/types';
+
 import {
   defaultFileHandler,
   DefaultPageStrategy,
 } from './dynamic-modules/DefaultPageStrategy';
+import { PageStrategy } from './dynamic-modules/PageStrategy';
 import {
   renderOnePageData,
   renderPageList,
   renderPageListInSSR,
 } from './dynamic-modules/pages';
-import { PageStrategy } from './dynamic-modules/PageStrategy';
 import { resolveTheme } from './dynamic-modules/resolveTheme';
 import { getEntries, resolvePagePath } from './router/pages';
 import { render } from './router/render';
@@ -50,13 +48,13 @@ export default function pluginFactory(
   return {
     name: 'vitext',
     config: () => ({
+      ssr: { external: ['prop-types', 'react-helmet-async'] },
       optimizeDeps: {
         include: [
           'react',
           'react-dom',
-          '@mdx-js/react',
-          'jotai',
-          'jotai/utils',
+          // 'react-helmet-async',
+          // 'prop-types',
         ],
         exclude: ['vitext'],
       },
@@ -79,49 +77,16 @@ export default function pluginFactory(
       } else {
         pageStrategy = new DefaultPageStrategy();
       }
-
-      // Inject parsing logic for frontmatter if missing.
-      const { devDependencies = {} } = require(path.join(root, 'package.json'));
-      if (!devDependencies['remark-frontmatter']) {
-        const mdxPlugin = plugins.find(
-          (plugin) => plugin.name === 'vite-plugin-mdx'
-        ) as MdxPlugin | undefined;
-
-        if (mdxPlugin?.mdxOptions) {
-          mdxPlugin.mdxOptions.remarkPlugins.push(
-            require('remark-frontmatter')
-          );
-        } else {
-          logger.warn('[vitext] Please install vite-plugin-mdx@3.1 or higher');
-        }
-      }
     },
     configureServer({
       middlewares,
-      watcher,
-      moduleGraph,
       ssrLoadModule,
       transformIndexHtml,
       config,
     }) {
-      const reloadVirtualModule = (moduleId: string) => {
-        const module = moduleGraph.getModuleById(moduleId);
-        if (module) {
-          moduleGraph.invalidateModule(module);
-          watcher.emit('change', moduleId);
-        }
-      };
-      pageStrategy
-        .on('page-list', () => reloadVirtualModule(pagesModuleId))
-        .on('page', (pageIds: string[]) => {
-          pageIds.forEach((pageId) => {
-            reloadVirtualModule(pagesModuleId + pageId);
-          });
-        });
-      const pageManifest = glob.sync(
-        path.resolve('./pages/**/*.+(js|jsx|ts|tsx)'),
-        { cwd: config.root }
-      );
+      const pageManifest = glob.sync('./pages/**/*.+(js|jsx|ts|tsx)', {
+        cwd: config.root,
+      });
 
       const entries = getEntries(pageManifest, config.root);
 
@@ -134,7 +99,6 @@ export default function pluginFactory(
           req.originalUrl!,
           entries.map((page) => page.pageName)
         );
-
         if (!page) {
           return next();
         }
@@ -142,7 +106,7 @@ export default function pluginFactory(
           req.originalUrl!,
           template
         );
-        const html = render({
+        const html = await render({
           entries,
           loadModule: ssrLoadModule,
           page,
@@ -154,12 +118,6 @@ export default function pluginFactory(
       });
     },
     buildStart() {
-      // buildStart will be called multiple times
-      // when the serve port has already been taken
-
-      // pageStrategy.start can't be put in configResolved
-      // because vite's resolveConfig will call configResolved without calling close hook
-
       pageStrategy.start(pagesDir);
     },
 
@@ -169,14 +127,12 @@ export default function pluginFactory(
     },
 
     async load(id) {
-      // vite will resolve it with v=${versionHash} query
-      // so that this import can be cached
       if (id === appEntryId) return `import "vitext/dist/client/main.js";`;
-      // page list
+
       if (id === pagesModuleId) {
         return renderPageList(await pageStrategy.getPages(), isBuild);
       }
-      // one page data
+
       if (id.startsWith(pagesModuleId + '/')) {
         let pageId = id.slice(pagesModuleId.length);
         if (pageId === '/__index') pageId = '/';
@@ -185,10 +141,6 @@ export default function pluginFactory(
         if (!page) {
           throw Error(`Page not found: ${pageId}`);
         }
-        // console.log(require(path.relative(__dirname, page.data.main)))
-        // console.log(
-        //   path.relative(__dirname, page.data.main),
-        // )
         return renderOnePageData(page.data);
       }
       if (id === themeModuleId) {

@@ -1,7 +1,10 @@
-import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
+import ssrPrepass from 'react-ssr-prepass';
+
+import Document from '../components/_document';
 import type { PageFileType } from '../types';
 import { getEntries, PageType } from './pages';
+
 export async function render({
   page,
   loadModule,
@@ -13,62 +16,36 @@ export async function render({
   entries: ReturnType<typeof getEntries>;
   template: string;
 }): Promise<string> {
-  const absolutePagePath = entries.find(
-    (p) => p.pageName === page!.pagePath
-  )!.absolutePagePath;
+  const absolutePagePath = entries.find((p) => p.pageName === page!.pagePath)!
+    .absolutePagePath;
 
   const { default: PageComponent } = (await loadModule(
     absolutePagePath
   )) as PageFileType;
 
-  const componentHtml = ReactDOMServer.renderToString(<PageComponent />);
+  const { helmetContext, App } = Document.renderDocument(Document, {
+    PageComponent,
+  });
 
-  const html = template.replace('<!--vitext-->', componentHtml);
+  ssrPrepass(App); // Suspense support
+  const componentHtml = ReactDOMServer.renderToString(App);
+
+  const headHtml = `
+     ${helmetContext.helmet.title.toString()}
+     ${helmetContext.helmet.meta.toString()}
+     ${helmetContext.helmet.link.toString()}
+     ${helmetContext.helmet.noscript.toString()}
+     ${helmetContext.helmet.script.toString()}
+     ${helmetContext.helmet.style.toString()}`;
+
+  const html = template
+    .replace('<!--vitext-->', componentHtml)
+    .replace('</head>', headHtml + '</head>')
+    .replace('<html', '<html ' + helmetContext.helmet.htmlAttributes.toString())
+    .replace(
+      '<body',
+      '<body ' + helmetContext.helmet.bodyAttributes.toString()
+    );
+
   return html;
-
-  // const Component = page.default
-  // const App = getPage('/_app', context).default
-  // // const Document = getPage("/_document", context).default;
-  //
-  // const renderPage = options => {
-  //   const EnhancedApp = options.enhanceApp ? options.enhanceApp(App) : App
-  //
-  //   const html = ReactDOMServer.renderToString(
-  //     <RouterProvider
-  //       initialUrl={event.request.url}
-  //       initialPagePath={page.pagePath}
-  //     >
-  //       <AppProvider
-  //         Component={Component}
-  //         App={EnhancedApp}
-  //         pageProps={props}
-  //         context={context}
-  //       />
-  //     </RouterProvider>
-  //   )
-  //
-  //   return { html }
-  // }
-  //
-  // const docProps = await Document.getEdgeProps({
-  //   page,
-  //   props,
-  //   context,
-  //   event,
-  //   buildManifest,
-  //   renderPage,
-  // })
-  //
-  // const helmet = Helmet.renderStatic()
-  //
-  // const html = Document.renderDocument(Document, {
-  //   helmet,
-  //   currentPage: getFlattenedCurrentPage(page),
-  //   page,
-  //   props,
-  //   context,
-  //   buildManifest,
-  //   ...docProps,
-  // })
-  //
 }
