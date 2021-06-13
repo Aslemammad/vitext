@@ -5,7 +5,6 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm recursive --filter create-vite-pages --filter vitext --filter vite-pages-theme-basic exec -- npm version",
     "test": "run-s test-serve test-build",
     "test-serve": "jest",
     "test-build": "cross-env VITE_TEST_BUILD=1 jest",
@@ -27,9 +26,13 @@
     "ts-jest": "^26.4.4",
     "ts-node": "^10.0.0",
     "typescript": "^4.2.3",
-    "vite": "^2.3.6"
+    "vite": "^2.3.6",
+    "yorkie": "^2.0.0"
   },
-  "workspaces": ["packages/*", "packages/playground/*"],
+  "workspaces": {
+    "packages": ["packages/*", "packages/playground/*"],
+    "nohoist": ["**"]
+  },
   "gitHooks": {
     "pre-commit": "lint-staged",
     "commit-msg": "node scripts/verifyCommit.js"
@@ -42,6 +45,7 @@
   "dependencies": {
     "-": "^0.0.1",
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
-    "D": "^1.0.0"
+    "D": "^1.0.0",
+    "lint-staged": "^11.0.0"
   }
 }
