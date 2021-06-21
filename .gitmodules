@@ -1,3 +1,0 @@
-[submodule "packages/rollup-plugin-esbuild"]
-	path = packages/rollup-plugin-esbuild
-	url = https://github.com/egoist/rollup-plugin-esbuild
