@@ -1,6 +1,4 @@
-import { ElementHandle } from 'playwright-chromium';
-
-import { editFile, untilUpdated, isBuild, getColor } from '../../testUtils';
+import { untilUpdated } from '../../testUtils';
 
 test('should render pages', async () => {
   await untilUpdated(() => page.textContent('#test'), 'IndexPage');
@@ -12,6 +10,12 @@ test('Helmet should work', async () => {
   await untilUpdated(() => page.textContent('#test'), 'IndexPage');
   const title = await page.title();
   expect(title).toBe('Hello World');
+});
+
+test('Hydration should work', async () => {
+  await untilUpdated(() => page.textContent('#test'), 'IndexPage');
+  const element = await page.$('#hydration-test');
+  expect(await element.textContent()).toBe('hydrated');
 });
 
 // if (!isBuild) {

@@ -8,8 +8,8 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "lib": ["ESNext", "ES2020.String", "ES2020", "DOM"],
-    "types": ["vitext/client", "jest", "node"]
+    "types": ["vitext/client", "jest", "node", "vitext"]
   }
 }
