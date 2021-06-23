@@ -1,19 +1,20 @@
 import React, { Component, createContext, useContext } from 'react';
 import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async';
 
-import { htmlEscapeJsonString } from '../utils';
+// import { htmlEscapeJsonString } from '../utils';
 
 type Props = {
-  PageComponent: React.ComponentType<any>;
+  Component: React.ComponentType<any>;
+  pageClientPath: string;
 };
 
 const DocumentContext = createContext<Props>(null as any);
 
-export default class Document extends Component {
+export class Document extends Component {
   static renderDocument(DocumentComponent: typeof Document, props: Props) {
     const helmetContext = {} as { helmet: HelmetData };
     return {
-      App: (
+      Page: (
         <DocumentContext.Provider value={props}>
           <HelmetProvider context={helmetContext}>
             <DocumentComponent {...props} />
@@ -34,21 +35,21 @@ export default class Document extends Component {
   }
 }
 
+export type DocumentType = typeof Document;
+
 export function Main() {
-  const { PageComponent } = useContext(DocumentContext);
-  return <PageComponent />;
+  const { Component } = useContext(DocumentContext);
+  return <Component />;
 }
 
 export function Script() {
+  const { pageClientPath } = useContext(DocumentContext);
+
   return (
     <Helmet>
-      <script
-        id="_DATA"
-        type="application/json"
-        dangerouslySetInnerHTML={{
-          __html: htmlEscapeJsonString(JSON.stringify({})),
-        }}
-      ></script>
+      <script id="__DATA" type="application/json">
+        {JSON.stringify({ pageClientPath })}
+      </script>
     </Helmet>
   );
 }
