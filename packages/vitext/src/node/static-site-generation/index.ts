@@ -1,11 +1,10 @@
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import type { RollupOutput } from 'rollup';
 import { build as viteBuild } from 'vite';
 import type { ResolvedConfig } from 'vite';
-import type { RollupOutput } from 'rollup';
-import * as path from 'path';
-import * as fs from 'fs-extra';
 
 import { CLIENT_PATH } from '../constants';
-import { stringify } from 'gray-matter';
 
 export async function ssrBuild(
   viteConfig: ResolvedConfig,

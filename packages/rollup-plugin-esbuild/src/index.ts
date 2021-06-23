@@ -53,6 +53,7 @@ export type Options = {
   }
   pure?: string[]
   external?: (id: string) => boolean
+  inject?: string[]
 }
 
 const warn = async (pluginContext: PluginContext, messages: Message[]) => {

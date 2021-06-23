@@ -1,18 +1,18 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
 import path from 'path';
-import { resolveConfig } from 'vite';
+import { createLogger } from 'vite';
 
 import { createServer } from './server';
-import { ssrBuild } from './static-site-generation';
 
 const argv: any = minimist(process.argv.slice(2));
 
 console.log(
   chalk.cyan(
-    `vitext v${require(path.resolve(__dirname, '../package.json')).version}`
+    `vitext v${require(path.resolve(__dirname, 'package.json')).version}`
   )
 );
+
 console.log(chalk.cyan(`vite v${require('vite/package.json').version}`));
 
 const command = argv._[0];
@@ -20,7 +20,6 @@ const root = argv._[command ? 1 : 0];
 if (root) {
   argv.root = root;
 }
-
 (async () => {
   switch (command) {
     case null:

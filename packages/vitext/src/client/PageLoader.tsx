@@ -3,6 +3,11 @@ import mitt from 'mitt';
 const dev = process.env.NODE_ENV !== 'production';
 
 export default class PageLoader {
+  pageCache: Record<string, string> = {};
+  loadingRoutes: Record<string, boolean>;
+  pageRegisterEvents: ReturnType<typeof mitt> = mitt();
+  promisedBuildManifest: Promise<Record<string, string>>;
+
   constructor(initialPage: string) {
     this.pageCache = {};
 
@@ -11,8 +16,6 @@ export default class PageLoader {
       '/_app': true,
       [initialPage]: true,
     };
-
-    this.pageRegisterEvents = mitt();
 
     this.promisedBuildManifest = new Promise((resolve) => {
       if (window.__BUILD_MANIFEST) {
@@ -76,19 +79,19 @@ export default class PageLoader {
     });
   }
 
-  async loadPageProps(pagePath) {
+  async loadPageProps(pagePath: string) {
     const url = getPagePropsUrl(pagePath);
     const res = await fetch(url);
     return await res.json();
   }
 
-  prefetchData(route) {
+  prefetchData(route: string) {
     const url = getPagePropsUrl(route);
 
     this.loadPrefetch(url, 'script');
   }
 
-  async prefetch(route) {
+  async prefetch(route: string) {
     if (connectionIsSlow()) return;
 
     if (dev) {
@@ -106,13 +109,13 @@ export default class PageLoader {
     });
   }
 
-  async getDependencies(route) {
+  async getDependencies(route: string) {
     const deps = await this.promisedBuildManifest;
 
     return deps[route];
   }
 
-  loadScript(path) {
+  loadScript(path: string) {
     const url = path;
 
     if (document.querySelector(`script[src^="${url}"]`)) return;
@@ -122,12 +125,12 @@ export default class PageLoader {
     document.body.appendChild(script);
   }
 
-  loadPrefetch(path, as) {
+  loadPrefetch(path: string, as: string) {
     return new Promise((resolve, reject) => {
       if (
         document.querySelector(`link[rel="${relPrefetch}"][href^="${path}"]`)
       ) {
-        return resolve();
+        return resolve(null);
       }
 
       const link = document.createElement('link');
@@ -141,10 +144,10 @@ export default class PageLoader {
     });
   }
 
-  loadStylesheet(path) {
+  loadStylesheet(path: string) {
     return new Promise((resolve, reject) => {
       if (document.querySelector(`link[rel="stylesheet"][href^="${path}"]`)) {
-        return resolve();
+        return resolve(null);
       }
 
       const link = document.createElement('link');

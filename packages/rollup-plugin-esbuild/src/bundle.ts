@@ -55,6 +55,7 @@ export const bundle = async (
     sourcemap: options.sourceMap || false,
     outdir: 'dist',
     platform: 'node',
+    inject: options.inject || [],
     plugins: [
       {
         name: 'rollup',

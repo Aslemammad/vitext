@@ -2,4 +2,7 @@ document.js
 document.d.ts
 app.js
 app.d.ts
-client
+cli.js
+cli.d.ts
+./client
+.rollup.cache

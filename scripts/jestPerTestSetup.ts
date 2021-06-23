@@ -1,14 +1,12 @@
 import fs from 'fs-extra';
 import * as http from 'http';
+import * as path from 'path';
 import { resolve, dirname } from 'path';
 import { ConsoleMessage, Page } from 'playwright-chromium';
-import sirv from 'sirv';
 import slash from 'slash';
-import { build, ViteDevServer, UserConfig } from 'vite';
+import { ViteDevServer, UserConfig } from 'vite';
 
 import { createServer } from '../packages/vitext/src/node/server';
-
-const isBuildTest = !!process.env.VITE_TEST_BUILD;
 
 // injected by the test env
 declare global {
@@ -59,13 +57,7 @@ beforeAll(async () => {
         },
       });
 
-      const testCustomServe = resolve(dirname(testPath), 'serve.js');
-      if (fs.existsSync(testCustomServe)) {
-        // test has custom server configuration.
-        const { serve } = require(testCustomServe);
-        server = await serve(tempDir, isBuildTest);
-        return;
-      }
+      modifyPackageName(path.resolve(tempDir, './package.json'));
 
       const options: UserConfig = {
         root: tempDir,
@@ -84,26 +76,21 @@ beforeAll(async () => {
           target: 'esnext',
         },
       };
+      process.env.VITE_INLINE = 'inline-serve';
+      server = await createServer('', options);
+      server = await server.listen();
 
-      if (!isBuildTest) {
-        process.env.VITE_INLINE = 'inline-serve';
-        server = await createServer('', options);
-        server = await server.listen();
-
-        const base = server.config.base === '/' ? '' : server.config.base;
-        const url = (global.viteTestUrl = `http://localhost:${server.config.server.port}${base}`);
-        await page.goto(url);
-      } else {
-        process.env.VITE_INLINE = 'inline-build';
-        await build(options);
-        const url = (global.viteTestUrl = await startStaticServer());
-        await page.goto(url);
-      }
+      const base = server.config.base === '/' ? '' : server.config.base;
+      const url =
+        (global.viteTestUrl = `http://localhost:${server.config.server.port}${base}`);
+      console.log(url);
+      await page.goto(url);
     }
   } catch (e) {
     // jest doesn't exit if our setup has error here
     // https://github.com/facebook/jest/issues/2713
     err = e;
+    console.log(err);
   }
 }, 30000);
 
@@ -117,46 +104,11 @@ afterAll(async () => {
   }
 });
 
-function startStaticServer(): Promise<string> {
-  // check if the test project has base config
-  const configFile = resolve(tempDir, 'vite.config.js');
-  let config: UserConfig;
-  try {
-    config = require(configFile);
-  } catch (e) {}
-  // @ts-ignore
-  const base = (config?.base || '/') === '/' ? '' : config.base;
-
-  // @ts-ignore
-  if (config && config.__test__) {
-    // @ts-ignore
-    config.__test__();
-  }
-
-  // start static file server
-  const serve = sirv(resolve(tempDir, 'dist'));
-  const httpServer = (server = http.createServer((req, res) => {
-    if (req.url === '/ping') {
-      res.statusCode = 200;
-      res.end('pong');
-    } else {
-      serve(req, res);
-    }
-  }));
-  let port = 5000;
-  return new Promise((resolve, reject) => {
-    const onError = (e: any) => {
-      if (e.code === 'EADDRINUSE') {
-        httpServer.close();
-        httpServer.listen(++port);
-      } else {
-        reject(e);
-      }
-    };
-    httpServer.on('error', onError);
-    httpServer.listen(port, () => {
-      httpServer.removeListener('error', onError);
-      resolve(`http://localhost:${port}${base}`);
-    });
-  });
+function modifyPackageName(path: string) {
+  const data: string = fs.readFileSync(path, 'utf-8');
+  const parsedData = JSON.parse(data);
+  parsedData.name = parsedData.name + '-test';
+  console.log(parsedData);
+  fs.writeFileSync(path, JSON.stringify(parsedData), 'utf-8');
+  // process.exit(0);
 }

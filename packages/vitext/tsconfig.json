@@ -4,6 +4,10 @@
     "target": "ESNext",
     "moduleResolution": "Node",
     "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"]
-  }
+    "lib": ["ESNext", "DOM"],
+    "rootDir": "./",
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["./"]
 }

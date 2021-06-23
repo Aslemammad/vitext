@@ -5,8 +5,8 @@
     "outDir": "../../dist",
     "module": "commonjs",
     "lib": ["ESNext", "ES2020.String", "ES2020"],
-    "jsx": "react",
-    "sourceMap": true,
+    "jsx": "react-jsx",
+    "sourceMap": false,
     "rootDir": "./"
   },
   "include": ["./"]

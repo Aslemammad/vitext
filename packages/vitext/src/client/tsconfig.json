@@ -2,10 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "outDir": "../../dist/client",
     "module": "ES2020",
-    "baseUrl": "./"
-    
+    "baseUrl": "./",
+    "sourceMap": false,
+    "typeRoots": ["./"]
   },
   "include": ["./"]
 }

@@ -1,21 +1,13 @@
 import * as glob from 'fast-glob';
-import fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
-import type { Plugin } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 
-import {
-  defaultFileHandler,
-  DefaultPageStrategy,
-} from './dynamic-modules/DefaultPageStrategy';
-import { PageStrategy } from './dynamic-modules/PageStrategy';
-import {
-  renderOnePageData,
-  renderPageList,
-  renderPageListInSSR,
-} from './dynamic-modules/pages';
-import { resolveTheme } from './dynamic-modules/resolveTheme';
+import type { AppType } from './components/_app';
+import type { DocumentType } from './components/_document';
 import { getEntries, resolvePagePath } from './router/pages';
 import { render } from './router/render';
+import { resolveCustomComponents } from './utils';
 
 const modulePrefix = '/@vitext/';
 /*
@@ -27,28 +19,25 @@ const appEntryId = modulePrefix + 'index.js';
 /**
  * This is a private prefix an users should not use them
  */
-const pagesModuleId = modulePrefix + 'pages';
-const themeModuleId = modulePrefix + 'theme';
-const ssrDataModuleId = modulePrefix + 'ssrData';
+const pagesModuleId = modulePrefix + 'pages/';
+const currentPageModuleId = modulePrefix + 'current-page';
 
-export default function pluginFactory(
-  opts: {
-    pagesDir?: string;
-    pageStrategy?: PageStrategy;
-    useHashRouter?: boolean;
-    staticSiteGeneration?: {};
-  } = {}
-): Plugin {
-  const { useHashRouter = false, staticSiteGeneration } = opts;
-
-  let isBuild: boolean;
-  let pagesDir: string;
-  let pageStrategy: PageStrategy;
+export default function pluginFactory(): Plugin {
+  let resolvedConfig: ResolvedConfig;
+  let currentPage: ReturnType<typeof resolvePagePath>;
+  let customComponents: {
+    Document: DocumentType;
+    App: AppType;
+  };
+  let entries: ReturnType<typeof getEntries>;
+  let clearEntries: ReturnType<typeof getEntries>;
 
   return {
     name: 'vitext',
     config: () => ({
-      ssr: { external: ['prop-types', 'react-helmet-async'] },
+      ssr: {
+        external: ['prop-types', 'react-helmet-async', 'vitext/document'],
+      },
       optimizeDeps: {
         include: [
           'react',
@@ -58,8 +47,8 @@ export default function pluginFactory(
         ],
         exclude: ['vitext'],
       },
-      define: {
-        __HASH_ROUTER__: !!useHashRouter,
+      esbuild: {
+        jsxInject: `import * as React from 'react'`,
       },
       build: {
         rollupOptions: {
@@ -69,26 +58,21 @@ export default function pluginFactory(
         },
       },
     }),
-    configResolved({ root, plugins, logger, command }) {
-      isBuild = command === 'build';
-      pagesDir = opts.pagesDir ?? path.resolve(root, 'pages');
-      if (opts.pageStrategy) {
-        pageStrategy = opts.pageStrategy;
-      } else {
-        pageStrategy = new DefaultPageStrategy();
-      }
-    },
     configureServer({
       middlewares,
       ssrLoadModule,
       transformIndexHtml,
       config,
     }) {
+      resolvedConfig = config;
       const pageManifest = glob.sync('./pages/**/*.+(js|jsx|ts|tsx)', {
         cwd: config.root,
       });
 
-      const entries = getEntries(pageManifest, config.root);
+      entries = getEntries(pageManifest);
+      clearEntries = entries.filter(
+        (page) => page.pageName !== '_document' && page.pageName !== '_app'
+      );
 
       const template = fs.readFileSync(
         path.resolve(config.root, 'index.html'),
@@ -97,68 +81,95 @@ export default function pluginFactory(
       middlewares.use(async (req, res, next) => {
         const page = resolvePagePath(
           req.originalUrl!,
-          entries.map((page) => page.pageName)
+          clearEntries.map((page) => page.pageName)
         );
+
         if (!page) {
           return next();
         }
+
+        if (!customComponents) {
+          const [{ default: Document }, { default: App }] =
+            await resolveCustomComponents({
+              entries,
+              loadModule: ssrLoadModule,
+            });
+          customComponents = { Document, App } as typeof customComponents;
+        }
+
+        currentPage = page;
+
         const transformedTemplate = await transformIndexHtml(
           req.originalUrl!,
           template
         );
-        const html = await render({
-          entries,
+        let html;
+        html = await render({
+          entries: clearEntries,
           loadModule: ssrLoadModule,
           page,
           template: transformedTemplate,
+          pagesModuleId,
+          Document: customComponents.Document,
+          App: customComponents.App,
         });
+
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/html');
         res.end(html);
       });
     },
-    buildStart() {
-      pageStrategy.start(pagesDir);
-    },
-
     resolveId(id) {
+      if (id.startsWith('.' + modulePrefix)) id = id.slice(1);
+
       if (id === appEntryId) return id;
+
+      if (id === currentPageModuleId) {
+        return (
+          pagesModuleId + (currentPage!.page !== '/' ? currentPage!.page : '')
+        );
+      }
+
+      if (id.startsWith(pagesModuleId)) {
+        return id;
+      }
+
       return id.startsWith(modulePrefix) ? id : undefined;
     },
 
     async load(id) {
-      if (id === appEntryId) return `import "vitext/dist/client/main.js";`;
+      if (id === appEntryId) return `import "vitext/client/main.js";`;
 
-      if (id === pagesModuleId) {
-        return renderPageList(await pageStrategy.getPages(), isBuild);
-      }
-
-      if (id.startsWith(pagesModuleId + '/')) {
-        let pageId = id.slice(pagesModuleId.length);
-        if (pageId === '/__index') pageId = '/';
-        const pages = await pageStrategy.getPages();
-        const page = pages[pageId];
-        if (!page) {
-          throw Error(`Page not found: ${pageId}`);
+      if (id.startsWith(modulePrefix + '_app')) {
+        const page = entries.find(({ pageName }) => pageName === '/_app');
+        if (page) {
+          const absolutePagePath = path.resolve(
+            resolvedConfig.root,
+            page!.absolutePagePath
+          );
+          return `export { default } from "${absolutePagePath}"`;
         }
-        return renderOnePageData(page.data);
+        // TODO: test for this case
+        return `export { App as default } from "${path.resolve(
+          __dirname,
+          './app.mjs'
+        )}"`;
       }
-      if (id === themeModuleId) {
-        return `export { default } from "${await resolveTheme(pagesDir)}";`;
+
+      if (id.startsWith(pagesModuleId)) {
+        const plainPageName =
+          id.slice(pagesModuleId.length) + (id === pagesModuleId ? '/' : '');
+        const page = clearEntries.find(
+          ({ pageName }) => pageName === plainPageName
+        );
+
+        const absolutePagePath = path.resolve(
+          resolvedConfig.root,
+          page!.absolutePagePath
+        );
+
+        return `export { default } from "${absolutePagePath}"`;
       }
-      if (id === ssrDataModuleId) {
-        return renderPageListInSSR(await pageStrategy.getPages());
-      }
-    },
-    // @ts-expect-error
-    vitePagesStaticSiteGeneration: staticSiteGeneration,
-    closeBundle() {
-      pageStrategy.close();
     },
   };
 }
-
-export { File, FileHandler } from './dynamic-modules/PageStrategy';
-export { extractStaticData } from './dynamic-modules/utils';
-export { PageStrategy };
-export { DefaultPageStrategy, defaultFileHandler };

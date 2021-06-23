@@ -93,7 +93,6 @@ export function getEntries(pageManifest: string[]) {
     if (/pages\/api\//.test(page)) return;
 
     const pageWithoutBase = page.slice('./pages'.length, page.length - 1);
-    console.log(pageWithoutBase, ' ', page);
     let pageName = '/' + pageWithoutBase.match(/\/(.+)\.(js|jsx|ts|tsx)$/)![1];
 
     if (pageName.endsWith('/index')) {

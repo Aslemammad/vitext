@@ -18,6 +18,6 @@ export async function createServer(root: string, options?: UserConfig) {
     base: config.base,
     server: config.server,
     build: config.build,
-    plugins: [...config.plugins, createVitextPlugin()],
+    plugins: [createVitextPlugin()],
   });
 }

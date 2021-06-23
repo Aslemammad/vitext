@@ -7,7 +7,8 @@ const DIR = path.join(os.tmpdir(), 'jest_playwright_global_setup');
 
 module.exports = async () => {
   const browserServer = await chromium.launchServer({
-    headless: !process.env.VITE_DEBUG_SERVE,
+    // headless: !process.env.VITE_DEBUG_SERVE,
+    headless: false,
     args: process.env.CI
       ? ['--no-sandbox', '--disable-setuid-sandbox']
       : undefined,
