@@ -1,7 +1,9 @@
+import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import ssrPrepass from 'react-ssr-prepass';
 
-import Document from '../components/_document';
+import type { AppType } from '../components/_app';
+import type { DocumentType } from '../components/_document';
 import type { PageFileType } from '../types';
 import { getEntries, PageType } from './pages';
 
@@ -10,25 +12,36 @@ export async function render({
   loadModule,
   entries,
   template,
+  pagesModuleId,
+  Document,
+  App,
 }: {
   page: PageType;
   loadModule: (url: string) => Promise<Record<string, any>>;
   entries: ReturnType<typeof getEntries>;
   template: string;
+  pagesModuleId: string;
+  Document: DocumentType;
+  App: AppType;
 }): Promise<string> {
-  const absolutePagePath = entries.find((p) => p.pageName === page!.pagePath)!
-    .absolutePagePath;
+  const absolutePagePath = entries.find(
+    (p) => p.pageName === page!.pagePath
+  )!.absolutePagePath;
 
   const { default: PageComponent } = (await loadModule(
     absolutePagePath
   )) as PageFileType;
 
-  const { helmetContext, App } = Document.renderDocument(Document, {
-    PageComponent,
+  const WrappedPage = () => <App Component={PageComponent} props={{}} />;
+
+  const { helmetContext, Page } = Document.renderDocument(Document, {
+    Component: WrappedPage,
+    pageClientPath: pagesModuleId + (page!.page !== '/' ? page!.page : ''),
   });
 
-  ssrPrepass(App); // Suspense support
-  const componentHtml = ReactDOMServer.renderToString(App);
+  await ssrPrepass(Page); // Suspense support
+
+  const componentHtml = ReactDOMServer.renderToString(Page);
 
   const headHtml = `
      ${helmetContext.helmet.title.toString()}
@@ -36,7 +49,8 @@ export async function render({
      ${helmetContext.helmet.link.toString()}
      ${helmetContext.helmet.noscript.toString()}
      ${helmetContext.helmet.script.toString()}
-     ${helmetContext.helmet.style.toString()}`;
+     ${helmetContext.helmet.style.toString()}
+     `;
 
   const html = template
     .replace('<!--vitext-->', componentHtml)
