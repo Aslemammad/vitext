@@ -3,17 +3,15 @@
     "target": "ESNext",
     "moduleResolution": "node",
     "strict": true,
-    "declaration": true,
     "noUnusedLocals": false,
     "esModuleInterop": true,
     "jsx": "react",
-    "incremental": true /* Enable incremental compilation */,
     "module": "CommonJS" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
-    "declarationMap": true /* Generates a sourcemap for each corresponding '.d.ts' file. */,
     "sourceMap": true /* Generates corresponding '.map' file. */,
-    "outDir": "./dist" /* Redirect output structure to the directory. */,
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
-    "preserveWatchOutput": true
+    "preserveWatchOutput": true,
+    "removeComments": false,
+    "resolveJsonModule": true
   }
 }
