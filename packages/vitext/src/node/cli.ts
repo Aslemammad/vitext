@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
 import path from 'path';
-import { createLogger } from 'vite';
 
 import { createServer } from './server';
 
@@ -16,16 +15,14 @@ console.log(
 console.log(chalk.cyan(`vite v${require('vite/package.json').version}`));
 
 const command = argv._[0];
-const root = argv._[command ? 1 : 0];
-if (root) {
-  argv.root = root;
-}
+const root: string = argv._[command ? 1 : 0] || process.cwd();
+
 (async () => {
   switch (command) {
     case null:
     case 'dev':
       try {
-        const server = await createServer(root);
+        const server = await createServer({ root });
         server.listen();
       } catch (error) {
         console.error(chalk.red(`failed to start server. error:\n`), error);
