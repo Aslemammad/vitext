@@ -4,7 +4,10 @@
   "bin": {
     "vitext": "./bin/vitext.js"
   },
-  "keywords": ["vite", "react"],
+  "keywords": [
+    "vite",
+    "react"
+  ],
   "sideEffects": false,
   "license": "MIT",
   "repository": {
@@ -66,6 +69,7 @@
     "mini-debounce": "^1.0.8",
     "minimist": "^1.2.5",
     "mitt": "^2.1.0",
+    "querystring": "^0.2.1",
     "react-helmet-async": "^1.0.9",
     "react-ssr-prepass": "^1.4.0",
     "read-pkg-up": "^7.0.1",
