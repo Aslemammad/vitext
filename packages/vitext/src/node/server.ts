@@ -1,23 +1,33 @@
+import * as fs from 'fs-extra';
+import * as path from 'path';
 import {
   createServer as createViteServer,
   resolveConfig,
   UserConfig,
-  defineConfig,
 } from 'vite';
 
 import { createVitextPlugin } from './plugin';
 
-export async function createServer(root: string, options?: UserConfig) {
-  const config = await resolveConfig(
-    options ? { root, ...options } : { root },
-    'serve'
+const returnConfigFiles = (root: string) =>
+  ['vitext.config.js', 'vitext.config.ts'].map((file) =>
+    path.resolve(root, file)
   );
 
+export async function createServer(options: UserConfig & { root: string }) {
+  let configFile: string =
+    returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
+    './vitext.config.js';
+
+  const config = await resolveConfig({ ...options, configFile }, 'serve');
+
   return createViteServer({
+    ...config,
+    assetsInclude: options.assetsInclude,
+    configFile: configFile,
     root: config.root,
     base: config.base,
     server: config.server,
     build: config.build,
-    plugins: [createVitextPlugin()],
+    plugins: [...config.plugins, createVitextPlugin()],
   });
 }
