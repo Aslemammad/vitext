@@ -7,6 +7,6 @@ test("Page shouldn't have window.__DATA", async () => {
 
 test('App should inject meta element', async () => {
   await untilUpdated(() => page.textContent('#test'), 'IndexPage');
-  const element = await page.$('meta[name="description"');
-  expect(await element.textContent()).toBe('Test');
+  const element = await page.$('meta[name="description"]');
+  expect(await element.getAttribute('content')).toBe('Test');
 });
