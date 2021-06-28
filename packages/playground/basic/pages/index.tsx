@@ -1,13 +1,16 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Script } from 'vitext/document';
+
+
+const timeout = (n: number) => new Promise((r) => setTimeout(r, n));
 
 const IndexPage = () => {
-  const [isMounted, setIsMounted] = React.useState(false);
-  React.useEffect(() => {
-    setIsMounted(true);
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    timeout(100).then(() => setIsMounted(true)) 
   }, []);
-  console.log(Script);
+
   return (
     <>
       <Helmet>

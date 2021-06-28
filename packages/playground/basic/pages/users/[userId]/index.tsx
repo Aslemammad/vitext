@@ -1,8 +1,3 @@
-/**
- * @title dynamic route page
- */
-
-import React from 'react'
 import { useParams } from 'react-router-dom'
 
 const IndexPage = () => {
