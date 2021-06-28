@@ -77,13 +77,12 @@ beforeAll(async () => {
         },
       };
       process.env.VITE_INLINE = 'inline-serve';
-      server = await createServer('', options);
+      server = await createServer(options);
       server = await server.listen();
 
       const base = server.config.base === '/' ? '' : server.config.base;
       const url =
         (global.viteTestUrl = `http://localhost:${server.config.server.port}${base}`);
-      console.log(url);
       await page.goto(url);
     }
   } catch (e) {
@@ -108,7 +107,6 @@ function modifyPackageName(path: string) {
   const data: string = fs.readFileSync(path, 'utf-8');
   const parsedData = JSON.parse(data);
   parsedData.name = parsedData.name + '-test';
-  console.log(parsedData);
   fs.writeFileSync(path, JSON.stringify(parsedData), 'utf-8');
   // process.exit(0);
 }
