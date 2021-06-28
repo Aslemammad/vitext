@@ -3,15 +3,19 @@ import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async';
 
 // import { htmlEscapeJsonString } from '../utils';
 
-type Props = {
+type DocumentProps = {
   Component: React.ComponentType<any>;
   pageClientPath: string;
+  props: any; // fetched data
 };
 
-const DocumentContext = createContext<Props>(null as any);
+const DocumentContext = createContext<DocumentProps>(null as any);
 
 export class Document extends Component {
-  static renderDocument(DocumentComponent: typeof Document, props: Props) {
+  static renderDocument(
+    DocumentComponent: typeof Document,
+    props: DocumentProps
+  ) {
     const helmetContext = {} as { helmet: HelmetData };
     return {
       Page: (
@@ -43,12 +47,17 @@ export function Main() {
 }
 
 export function Script() {
-  const { pageClientPath } = useContext(DocumentContext);
+  const { pageClientPath, props } = useContext(DocumentContext);
 
   return (
     <Helmet>
       <script id="__DATA" type="application/json">
-        {JSON.stringify({ pageClientPath })}
+        {JSON.stringify({
+          pageClientPath,
+          props: {
+            [pageClientPath]: props,
+          },
+        })}
       </script>
     </Helmet>
   );
