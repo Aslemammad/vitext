@@ -3,7 +3,7 @@ import React from 'react';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
-import { DYNAMIC_PAGE, getEntries } from './router/pages';
+import { DYNAMIC_PAGE, getEntries } from './route/pages';
 
 export function extractDynamicParams(source: string, path: string) {
   let test: RegExp | string = source;
@@ -44,11 +44,20 @@ export function htmlEscapeJsonString(str: string) {
   return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
+const importQueryRE = /(\?|&)import=?(?:&|$)/
+const trailingSeparatorRE = /[\?&]$/
+
+export function removeImportQuery(url: string): string {
+  return url.replace(importQueryRE, '$1').replace(trailingSeparatorRE, '')
+}
+
 type ComponentFileType = { default: AppType | DocumentType } & Record<
   string,
   any
 >;
+
 type PromisedComponentFileType = Promise<ComponentFileType> | ComponentFileType;
+
 export function resolveCustomComponents({
   entries,
   loadModule,
