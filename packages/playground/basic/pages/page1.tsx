@@ -1,11 +1,5 @@
-import './style.scss'
-
 const Page1 = () => {
-  return (
-    <div>
-      <p className="page">Page1</p>
-    </div>
-  )
-}
+  return <div id="test">Page1</div>;
+};
 
-export default Page1
+export default Page1;

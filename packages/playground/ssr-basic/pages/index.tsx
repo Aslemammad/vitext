@@ -3,8 +3,7 @@ const IndexPage = ({ text }) => {
 };
 
 export function getProps() {
-  console.log('hello')
-  return { props: { text: 'Hello World' } };
+  return { props: { text: 'IndexPage' } };
 }
 
 export default IndexPage;

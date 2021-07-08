@@ -8,7 +8,7 @@ const IndexPage = () => {
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    timeout(100).then(() => setIsMounted(true)) 
+    timeout(200).then(() => setIsMounted(true)) 
   }, []);
 
   return (
