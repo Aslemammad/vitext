@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { parse as parseQs } from 'querystring';
 import type { Connect, ViteDevServer } from 'vite';
 
 import type { AppType } from '../components/_app';
@@ -15,7 +16,6 @@ export function createPageMiddleware({
   pagesModuleId,
   template,
   transformIndexHtml,
-  currentPage,
 }: {
   pagesModuleId: string;
   template: string;
@@ -37,8 +37,9 @@ export function createPageMiddleware({
   });
 
   return async (req, res, next) => {
+    const [pathname, queryString] = (req.originalUrl || '').split('?')!;
     const page = resolvePagePath(
-      req.originalUrl!,
+      pathname,
       entries.map((page) => page.pageName)
     );
 
@@ -54,8 +55,6 @@ export function createPageMiddleware({
         customComponents = { Document, App } as typeof customComponents;
       }
 
-      Object.assign(currentPage, page);
-
       const transformedTemplate = await transformIndexHtml(
         req.url!,
         template,
@@ -63,19 +62,20 @@ export function createPageMiddleware({
       );
 
       const absolutePagePath = entries.find(
-        (p) => p.pageName === page.pagePath
+        (p) => p.pageName === page.page
       )!.absolutePagePath;
 
       const pageFile = (await loadModule(absolutePagePath)) as PageFileType;
 
-      const data = await fetchData({ req, res, pageFile });
+      page.query = parseQs(queryString);
+
+      const data = await fetchData({ req, res, pageFile, page });
 
       const html = await renderToHTML({
         entries,
         page,
-        props: data?.props,
         pagesModuleId,
-        loadModule,
+        props: data?.props,
         template: transformedTemplate,
         Component: pageFile.default,
         Document: customComponents.Document!,

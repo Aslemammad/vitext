@@ -17,7 +17,6 @@ export async function renderToHTML({
 }: {
   page: PageType;
   props: Record<string, unknown>;
-  loadModule: (url: string) => Promise<Record<string, any>>;
   entries: ReturnType<typeof getEntries>;
   template: string;
   pagesModuleId: string;
