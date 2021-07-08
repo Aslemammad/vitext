@@ -9,15 +9,13 @@ import { getEntries } from './route/pages';
 
 export type Entries = ReturnType<typeof getEntries>;
 
-export type GetPathsContext = {};
-
 export type GetPathsResult<P extends ParsedUrlQuery = ParsedUrlQuery> = {
-  paths: Array<string | { params: P }>;
+  paths: Array<{ params: P }>;
 };
 
-export type GetPaths<P extends ParsedUrlQuery = ParsedUrlQuery> = (
-  context: GetPathsContext
-) => Promise<GetPathsResult<P>> | GetPathsResult<P>;
+export type GetPaths<P extends ParsedUrlQuery = ParsedUrlQuery> = () =>
+  | Promise<GetPathsResult<P>>
+  | GetPathsResult<P>;
 
 export type GetPropsContext<Q extends ParsedUrlQuery = ParsedUrlQuery> = {
   req: IncomingMessage;
@@ -29,7 +27,7 @@ export type GetPropsContext<Q extends ParsedUrlQuery = ParsedUrlQuery> = {
 type JustProps<P> = { props: P; revalidate?: number | boolean };
 type NotFound = { notFound?: true };
 
-export type GetPropsResult<P> = JustProps<P> & NotFound
+export type GetPropsResult<P> = JustProps<P> & NotFound;
 
 export type GetProps<
   P extends { [key: string]: any } = { [key: string]: any },

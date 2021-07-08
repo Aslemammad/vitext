@@ -39,6 +39,7 @@ function createDeclarationConfig(inputDir, inputFile, output) {
     },
     external,
     plugins: [dts()],
+
   };
 }
 function createESMConfig(inputDir, inputFile, output) {

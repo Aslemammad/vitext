@@ -44,11 +44,11 @@ export function htmlEscapeJsonString(str: string) {
   return str.replace(ESCAPE_REGEX, (match) => ESCAPE_LOOKUP[match]);
 }
 
-const importQueryRE = /(\?|&)import=?(?:&|$)/
-const trailingSeparatorRE = /[\?&]$/
+const importQueryRE = /(\?|&)import=?(?:&|$)/;
+const trailingSeparatorRE = /[\?&]$/;
 
 export function removeImportQuery(url: string): string {
-  return url.replace(importQueryRE, '$1').replace(trailingSeparatorRE, '')
+  return url.replace(importQueryRE, '$1').replace(trailingSeparatorRE, '');
 }
 
 type ComponentFileType = { default: AppType | DocumentType } & Record<
@@ -83,4 +83,15 @@ export function resolveCustomComponents({
   }
 
   return Promise.all([DocumentFile, AppFile] as const);
+}
+
+/*
+ * /@fs/..../@vitext/hack-import/...js to /@vitext/hack-import/...
+ */
+export function resolveHackImport(id: string) {
+  const str = '/@vitext/hack-import'
+  const portionIndex = id.search(str);
+  const strLength = str.length
+  if (portionIndex < 0) return id;
+  return id.slice(portionIndex + strLength, id.length - 3);
 }

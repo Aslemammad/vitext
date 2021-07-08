@@ -6,6 +6,7 @@ const { chromium } = require('playwright-chromium');
 const DIR = path.join(os.tmpdir(), 'jest_playwright_global_setup');
 
 module.exports = async () => {
+  await fs.remove(path.resolve(__dirname, '../temp'));
   const browserServer = await chromium.launchServer({
     headless: !process.env.VITE_DEBUG_SERVE,
     args: process.env.CI

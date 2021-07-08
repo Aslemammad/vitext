@@ -5,7 +5,6 @@ const config: Config.InitialOptions = {
     ? ['**/playground/**/*.spec.[jt]s?(x)']
     : ['**/*.spec.[jt]s?(x)'],
   transform: {
-    // '^.+\\.(t|j)sx?$': ['@swc/jest', {}],
     '^.+\\.(t|j)sx?$': [
       'esbuild-jest',
       {
