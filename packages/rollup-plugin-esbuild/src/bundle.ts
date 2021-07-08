@@ -55,6 +55,7 @@ export const bundle = async (
     sourcemap: options.sourceMap || false,
     outdir: 'dist',
     platform: 'node',
+    legalComments: 'inline',
     inject: options.inject || [],
     plugins: [
       {

@@ -207,6 +207,7 @@ export default (options: Options = {}): Plugin => {
           minifyIdentifiers: options.minifyIdentifiers,
           minifySyntax: options.minifySyntax,
           target,
+          legalComments: 'inline',
           sourcemap: options.sourceMap || false,
         })
         await warn(this, result.warnings)
