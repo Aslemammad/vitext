@@ -14,11 +14,13 @@ test('Helmet should work', async () => {
 });
 
 test('ssr should work', async () => {
-  await untilUpdated(() => page.textContent('#hydration-test'), 'server-rendered');
+  await untilUpdated(
+    () => page.textContent('#hydration-test'),
+    'server-rendered'
+  );
 });
 
 test('Hydration should work', async () => {
   await untilUpdated(() => page.textContent('#test'), 'IndexPage');
   await untilUpdated(() => page.textContent('#hydration-test'), 'hydrated');
 });
-

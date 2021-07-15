@@ -107,14 +107,15 @@ export async function untilUpdated(
   runInBuild = false
 ) {
   if (isBuild && !runInBuild) return;
-  const maxTries = process.env.CI ? 100 : 50;
+  const maxTries = process.env.CI ? 25 : 15;
   for (let tries = 0; tries < maxTries; tries++) {
     const actual = (await poll()) || '';
+    console.log(actual)
     if (actual.indexOf(expected) > -1 || tries === maxTries - 1) {
       expect(actual).toMatch(expected);
       break;
     } else {
-      await timeout(50);
+      await timeout(100);
     }
   }
 }
