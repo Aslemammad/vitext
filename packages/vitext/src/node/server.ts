@@ -25,9 +25,9 @@ export async function createServer(options: UserConfig & { root: string }) {
     assetsInclude: options.assetsInclude,
     configFile: configFile,
     root: config.root,
-    base: config.base,
     server: config.server,
     build: config.build,
-    plugins: [...config.plugins, createVitextPlugin()],
+    base: config.base,
+    plugins: [...createVitextPlugin(), ...config.plugins],
   });
 }

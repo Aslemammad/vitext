@@ -1,10 +1,12 @@
 import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import ssrPrepass from 'react-ssr-prepass';
+// @ts-ignore
 
+import Loadable from '../../react/loadable'
 import type { AppType } from '../components/_app';
 import type { DocumentType } from '../components/_document';
 import { getEntries, PageType } from './pages';
+
 
 export async function renderToHTML({
   page,
@@ -32,8 +34,7 @@ export async function renderToHTML({
     pageClientPath: pagesModuleId + (page.page !== '/' ? page.page : ''),
   });
 
-  await ssrPrepass(Page); // Suspense support
-
+  await Loadable.preloadAll()
   const componentHtml = ReactDOMServer.renderToString(Page);
 
   const headHtml = `

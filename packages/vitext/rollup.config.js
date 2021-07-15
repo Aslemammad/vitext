@@ -97,9 +97,34 @@ function createComponentsConfig(declaration) {
   }
   return [
     createCommonJSConfig('src/node/components', '_document.tsx', 'document.js'),
-    createCommonJSConfig('src/node/components', '_app.tsx', 'app.js'),
-    createESMConfig('src/node/components', '_app.tsx', 'app.mjs'),
+    // createCommonJSConfig('src/node/components', '_app.tsx', 'app.js'),
+    createCommonJSConfig('src/node/components', '_app.tsx', 'app.node.js'),
+    createESMConfig('src/node/components', '_app.tsx', 'app.js'),
     createESMConfig('src/node/components', 'Head.tsx', 'Head.js'),
+  ];
+}
+
+function createReactConfig(declaration) {
+  if (declaration) {
+    return [
+
+    ]
+  }
+  return [
+    createESMConfig('src/react/', 'index.tsx', 'react.js'),
+    createCommonJSConfig('src/react/', 'index.tsx', 'react.node.js'),
+  ];
+}
+
+function createDynamicConfig(declaration) {
+  if (declaration) {
+    return [
+      createDeclarationConfig('src/react/', 'dynamic.tsx', 'dynamic.d.ts'),
+    ]
+  }
+  return [
+    createESMConfig('src/react/', 'dynamic.tsx', 'dynamic.js'),
+    // createCommonJSConfig('src/react/dynamic.tsx', 'index.tsx', 'dynamic.node.js'),
   ];
 }
 
@@ -107,6 +132,9 @@ const config = {
   components: createComponentsConfig,
   client: createClientConfig,
   node: createNodeConfig,
+  react: createReactConfig,
+  dynamic: createDynamicConfig
+
 };
 
 export default function (args) {

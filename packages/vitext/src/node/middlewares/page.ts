@@ -87,6 +87,7 @@ export function createPageMiddleware({
       res.end(html);
     } catch (e) {
       console.error(chalk.red(e));
+      next(e)
     }
   };
 }

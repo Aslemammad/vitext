@@ -1,6 +1,9 @@
 import chalk from 'chalk';
+import { init, parse } from 'es-module-lexer';
+import { Loader, transform } from 'esbuild';
 import * as glob from 'fast-glob';
 import * as fs from 'fs';
+import MagicString from 'magic-string';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 import { promisify } from 'util';
@@ -20,20 +23,43 @@ const currentPageModuleId = modulePrefix + 'current-page';
 const readFile = promisify(fs.readFile);
 
 export default function pluginFactory(): Plugin {
+  const start = performance.now();
+
   let resolvedConfig: ResolvedConfig;
   let currentPage: PageType = {} as any;
 
   let entries: Entries;
   let clearEntries: Entries;
+  // @ts-ignore
+
+  init;
 
   return {
     name: 'vitext',
     config: () => ({
       ssr: {
-        external: ['prop-types', 'react-helmet-async', 'vitext/document'],
+        external: [
+          'prop-types',
+          'react-helmet-async',
+          'vitext/document',
+          'use-subscription',
+          // 'vitext/react',
+          'vitext/react.node',
+          'vitext/react.node.js',
+          'react',
+        ],
       },
       optimizeDeps: {
-        include: ['react', 'react-dom'],
+        // add some vitext stuff like vitext/react to include
+        include: [
+          'react',
+          'react-dom',
+          'use-subscription',
+          'vitext/react',
+          'vitext/react.node',
+          'vitext/react.node.js',
+          'react-helmet-async',
+        ],
         exclude: ['vitext'],
       },
       esbuild: {
@@ -41,6 +67,7 @@ export default function pluginFactory(): Plugin {
         jsxInject: `import * as React from 'react'`,
       },
       build: {
+        base: undefined,
         rollupOptions: {
           output: {
             manualChunks: undefined,
@@ -54,7 +81,6 @@ export default function pluginFactory(): Plugin {
       transformIndexHtml,
       config,
     }) {
-      const start = performance.now();
       resolvedConfig = config;
 
       const pageManifest = await glob.default('./pages/**/*.+(js|jsx|ts|tsx)', {
@@ -82,7 +108,9 @@ export default function pluginFactory(): Plugin {
         })
       );
       console.log(
-        chalk.greenBright(`started in ${((performance.now() - start) / 1000).toFixed(3)}s`)
+        chalk.green(
+          `started in ${((performance.now() - start) / 1000).toFixed(3)}s`
+        )
       );
     },
     resolveId(id) {
@@ -118,7 +146,7 @@ export default function pluginFactory(): Plugin {
           process.env.NODE_ENV === 'test'
             ? path.resolve(__dirname, '../..')
             : __dirname,
-          './app.mjs'
+          './app.js'
         )}"`;
       }
 
@@ -151,6 +179,46 @@ export default function pluginFactory(): Plugin {
   };
 }
 
-export function createVitextPlugin(): Plugin {
-  return pluginFactory();
+export function dependencyInjector(): Plugin {
+  return {
+    name: 'virtual:dependency-injector',
+    enforce: 'pre',
+    resolveId(id, importer) {
+      if (id.includes('react.js') && importer?.includes('vitext/react.js')) {
+        return 'react';
+      } else if (id.includes('react.js')) {
+        return 'vitext/react';
+      }
+    },
+    async transform(code, id, ssr) {
+      let ext = path.extname(id).slice(1);
+      if (ext === 'mjs' || ext === 'cjs') ext = 'js';
+
+
+      if (ssr) {
+        await init;
+        const source = (
+          await transform(code, { loader: ext as Loader, jsx: 'transform' })
+        ).code;
+
+        const imports = parse(source)[0];
+        const s = new MagicString(source);
+        for (let index = 0; index < imports.length; index++) {
+          const { s: start, e: end } = imports[index];
+          const url = source.slice(start, end);
+
+          s.overwrite(start, end, url === 'react' ? 'vitext/react.node' : url);
+        }
+
+        return {
+          code: s.toString() || source,
+        };
+      }
+
+      return null;
+    },
+  };
+}
+export function createVitextPlugin(): Plugin[] {
+  return [pluginFactory(), dependencyInjector()];
 }

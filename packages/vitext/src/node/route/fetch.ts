@@ -18,11 +18,11 @@ export async function fetchData({
   page: PageType;
 }): Promise<{ props?: any } | undefined> {
   const query = querystring.parse(req.originalUrl!);
-  // let getPropsResult: GetPropsResult<any>;
 
   let params: querystring.ParsedUrlQuery | undefined;
 
-  if ('getPaths' in pageFile) {
+  // non-dynamic pages should not have getPaths
+  if ('getPaths' in pageFile && page.page.includes('[')) {
     const { paths } = await fetchPaths({ getPaths: pageFile.getPaths });
 
     params = paths.find((p) =>

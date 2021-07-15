@@ -11,7 +11,6 @@ const ComponentPromise = import(
 );
 
 async function render() {
-
   const props = window.__DATA.props[window.__DATA.pageClientPath];
 
   const Component = (await ComponentPromise).default;
