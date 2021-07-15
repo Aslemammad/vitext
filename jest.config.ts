@@ -15,7 +15,7 @@ const config: Config.InitialOptions = {
       },
     ],
   },
-  // testTimeout: process.env.CI ? 30000 : 10000,
+  testTimeout: process.env.CI ? 30000 : 10000,
   globalSetup: './scripts/jestGlobalSetup.js',
   globalTeardown: './scripts/jestGlobalTeardown.js',
   testEnvironment: './scripts/jestEnv.js',
