@@ -115,7 +115,7 @@ export async function untilUpdated(
       expect(actual).toMatch(expected);
       break;
     } else {
-      await timeout(100);
+      await timeout(50);
     }
   }
 }

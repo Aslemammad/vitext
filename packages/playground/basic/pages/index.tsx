@@ -5,19 +5,19 @@ import dynamic from 'vitext/dynamic';
 const timeout = (n: number) => new Promise((r) => setTimeout(r, n));
 
 const DynamicComponent = dynamic(async () => {
-  await timeout(500);
+  // await timeout(500);
   return (await import('../components/Component')).default;
 });
 
 const DynamicComponentNoServer = dynamic(
   async () => {
-    await timeout(500);
+    // await timeout(500);
     return (await import('../components/Component')).default;
   },
   { server: false }
 );
 const Component = lazy(async () => {
-  await timeout(100);
+  // await timeout(500);
   return import('../components/Component');
 });
 
