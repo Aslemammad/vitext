@@ -92,7 +92,7 @@ function createComponentsConfig(declaration) {
         'document.d.ts'
       ),
       createDeclarationConfig('src/node/components', '_app.tsx', 'app.d.ts'),
-      createDeclarationConfig('src/node/components', 'Head.tsx', 'Head.d.ts'),
+      createDeclarationConfig('src/node/components', 'Head.tsx', 'head.d.ts'),
     ];
   }
   return [
@@ -100,7 +100,7 @@ function createComponentsConfig(declaration) {
     // createCommonJSConfig('src/node/components', '_app.tsx', 'app.js'),
     createCommonJSConfig('src/node/components', '_app.tsx', 'app.node.js'),
     createESMConfig('src/node/components', '_app.tsx', 'app.js'),
-    createESMConfig('src/node/components', 'Head.tsx', 'Head.js'),
+    createESMConfig('src/node/components', 'Head.tsx', 'head.js'),
   ];
 }
 

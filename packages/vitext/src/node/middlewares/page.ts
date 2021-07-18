@@ -15,13 +15,15 @@ export function createPageMiddleware({
   loadModule,
   pagesModuleId,
   template,
-  transformIndexHtml,
+  fixStacktrace,
+  transformIndexHtml
 }: {
   pagesModuleId: string;
   template: string;
   entries: Entries;
   currentPage: PageType;
   loadModule: ViteDevServer['ssrLoadModule'];
+  fixStacktrace: ViteDevServer['ssrFixStacktrace'];
   transformIndexHtml: ViteDevServer['transformIndexHtml'];
 }): Connect.NextHandleFunction {
   // custom components cache
@@ -86,7 +88,8 @@ export function createPageMiddleware({
       res.setHeader('Content-Type', 'text/html');
       res.end(html);
     } catch (e) {
-      console.error(chalk.red(e));
+      fixStacktrace(e)
+      console.log(chalk.red(e))
       next(e)
     }
   };

@@ -1,12 +1,9 @@
-import chalk from 'chalk';
 import { init, parse } from 'es-module-lexer';
 import { Loader, transform } from 'esbuild';
 import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import MagicString from 'magic-string';
 import * as path from 'path';
-import { performance } from 'perf_hooks';
-import { promisify } from 'util';
 import type { Plugin, ResolvedConfig } from 'vite';
 
 import { createPageMiddleware } from './middlewares/page';
@@ -20,17 +17,12 @@ const appEntryId = modulePrefix + 'index.js';
 const pagesModuleId = modulePrefix + 'pages/';
 const currentPageModuleId = modulePrefix + 'current-page';
 
-const readFile = promisify(fs.readFile);
-
 export default function pluginFactory(): Plugin {
-  const start = performance.now();
-
   let resolvedConfig: ResolvedConfig;
   let currentPage: PageType = {} as any;
 
   let entries: Entries;
   let clearEntries: Entries;
-  // @ts-ignore
 
   init;
 
@@ -78,6 +70,7 @@ export default function pluginFactory(): Plugin {
     async configureServer({
       middlewares,
       ssrLoadModule,
+      ssrFixStacktrace,
       transformIndexHtml,
       config,
     }) {
@@ -92,26 +85,22 @@ export default function pluginFactory(): Plugin {
         (page) => page.pageName !== '_document' && page.pageName !== '_app'
       );
 
-      const template = await readFile(
+      const template = await fs.promises.readFile(
         path.resolve(config.root, 'index.html'),
         'utf-8'
       );
 
-      middlewares.use(
-        createPageMiddleware({
-          entries,
-          pagesModuleId,
-          template,
-          transformIndexHtml,
-          currentPage,
-          loadModule: ssrLoadModule,
-        })
-      );
-      console.log(
-        chalk.green(
-          `started in ${((performance.now() - start) / 1000).toFixed(3)}s`
-        )
-      );
+      const pageMiddleware = createPageMiddleware({
+        entries,
+        pagesModuleId,
+        template,
+        transformIndexHtml,
+        currentPage,
+        loadModule: ssrLoadModule,
+        fixStacktrace: ssrFixStacktrace,
+      });
+
+      return () => middlewares.use(pageMiddleware);
     },
     resolveId(id) {
       if (id.startsWith('.' + modulePrefix)) id = id.slice(1);
@@ -181,7 +170,7 @@ export default function pluginFactory(): Plugin {
 
 export function dependencyInjector(): Plugin {
   return {
-    name: 'virtual:dependency-injector',
+    name: 'vitext:dependency-injector',
     enforce: 'pre',
     resolveId(id, importer) {
       if (id.includes('react.js') && importer?.includes('vitext/react.js')) {
@@ -193,7 +182,6 @@ export function dependencyInjector(): Plugin {
     async transform(code, id, ssr) {
       let ext = path.extname(id).slice(1);
       if (ext === 'mjs' || ext === 'cjs') ext = 'js';
-
 
       if (ssr) {
         await init;

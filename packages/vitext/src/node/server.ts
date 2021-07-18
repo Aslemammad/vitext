@@ -1,3 +1,4 @@
+import reactRefresh from '@vitejs/plugin-react-refresh';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import {
@@ -28,6 +29,15 @@ export async function createServer(options: UserConfig & { root: string }) {
     server: config.server,
     build: config.build,
     base: config.base,
-    plugins: [...createVitextPlugin(), ...config.plugins],
+    plugins: [
+      {
+        ...reactRefresh({
+          exclude: [/vitext\/dynamic\.js/, /vitext\/app\.js/],
+        }),
+        enforce: 'post',
+      },
+      ...createVitextPlugin(),
+      ...config.plugins,
+    ],
   });
 }

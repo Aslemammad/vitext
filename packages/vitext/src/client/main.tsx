@@ -15,12 +15,22 @@ async function render() {
 
   const Component = (await ComponentPromise).default;
 
-  ReactDOM.hydrate(
-    <HelmetProvider>
-      <App Component={Component} props={props} />
-    </HelmetProvider>,
-    document.getElementById('root')
-  );
+  console.log(import.meta.env.DEV);
+  if (import.meta.env.DEV) {
+    ReactDOM.render(
+      <HelmetProvider>
+        <App Component={Component} props={props} />
+      </HelmetProvider>,
+      document.getElementById('root')
+    );
+  } else {
+    ReactDOM.hydrate(
+      <HelmetProvider>
+        <App Component={Component} props={props} />
+      </HelmetProvider>,
+      document.getElementById('root')
+    );
+  }
 }
 
 render();

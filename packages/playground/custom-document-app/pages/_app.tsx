@@ -1,4 +1,4 @@
-import { Head } from 'vitext/Head';
+import { Head } from 'vitext/head';
 
 const App = ({
   Component,

@@ -1,1 +1,1 @@
-export { Helmet as Head } from 'react-helmet-async';
+export { Helmet as Head, Helmet as default } from 'react-helmet-async';
