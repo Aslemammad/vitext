@@ -1,22 +1,29 @@
 import chalk from 'chalk';
+import { Worker } from 'jest-worker';
+import path from 'path';
 import { parse as parseQs } from 'querystring';
 import type { Connect, ViteDevServer } from 'vite';
 
-import type { AppType } from '../components/_app';
-import type { DocumentType } from '../components/_document';
 import { fetchData } from '../route/fetch';
 import { PageType, resolvePagePath } from '../route/pages';
 import { renderToHTML } from '../route/render';
-import type { Entries, PageFileType } from '../types';
-import { resolveCustomComponents } from '../utils';
+import * as RouteWorker from '../route/worker';
+import type { Entries } from '../types';
+import { loadPage, resolveCustomComponents } from '../utils';
 
-export function createPageMiddleware({
+console.log(global.require)
+const routeWorker = new Worker(('../route/worker.ts')) as Worker &
+  typeof RouteWorker;
+routeWorker.getStdout().pipe(process.stdout);
+routeWorker.getStderr().pipe(process.stderr);
+
+export async function createPageMiddleware({
   entries,
   loadModule,
   pagesModuleId,
   template,
   fixStacktrace,
-  transformIndexHtml
+  transformIndexHtml,
 }: {
   pagesModuleId: string;
   template: string;
@@ -25,18 +32,12 @@ export function createPageMiddleware({
   loadModule: ViteDevServer['ssrLoadModule'];
   fixStacktrace: ViteDevServer['ssrFixStacktrace'];
   transformIndexHtml: ViteDevServer['transformIndexHtml'];
-}): Connect.NextHandleFunction {
-  // custom components cache
-  let customComponents: {
-    Document: DocumentType | null;
-    App: AppType | null;
-  } = { Document: null, App: null };
-
-  // load custom components concurrently
-  const customComponentsPromise = resolveCustomComponents({
+}): Promise<Connect.NextHandleFunction> {
+  let customComponents = await resolveCustomComponents({
     entries,
     loadModule,
   });
+  console.log(routeWorker);
 
   return async (req, res, next) => {
     const [pathname, queryString] = (req.originalUrl || '').split('?')!;
@@ -50,24 +51,12 @@ export function createPageMiddleware({
     }
 
     try {
-      if (!(customComponents.Document && customComponents.App)) {
-        const [{ default: Document }, { default: App }] =
-          await customComponentsPromise;
-
-        customComponents = { Document, App } as typeof customComponents;
-      }
-
       const transformedTemplate = await transformIndexHtml(
         req.url!,
         template,
         req.originalUrl
       );
-
-      const absolutePagePath = entries.find(
-        (p) => p.pageName === page.page
-      )!.absolutePagePath;
-
-      const pageFile = (await loadModule(absolutePagePath)) as PageFileType;
+      const pageFile = await loadPage({ entries, loadModule, page });
 
       page.query = parseQs(queryString);
 
@@ -88,9 +77,9 @@ export function createPageMiddleware({
       res.setHeader('Content-Type', 'text/html');
       res.end(html);
     } catch (e) {
-      fixStacktrace(e)
-      console.log(chalk.red(e))
-      next(e)
+      fixStacktrace(e);
+      console.log(chalk.red(e));
+      next(e);
     }
   };
 }

@@ -1,13 +1,15 @@
+import * as path from 'path';
 import type { ParsedUrlQuery } from 'querystring';
+import { Manifest } from 'vite';
 
 export const DYNAMIC_PAGE = new RegExp('\\[(\\w+)\\]', 'g');
-const publicPaths = ['/favicon.ico','/__vite_ping']
+const publicPaths = ['/favicon.ico', '/__vite_ping'];
 
 export type PageType = ReturnType<typeof resolvePagePath> & {};
 
 export function resolvePagePath(pagePath: string, keys: string[]) {
   if (publicPaths.includes(pagePath)) {
-    return
+    return;
   }
 
   const pagesMap = keys.map((page) => {
@@ -32,16 +34,21 @@ export function resolvePagePath(pagePath: string, keys: string[]) {
   return page;
 }
 
-export function getEntries(pageManifest: string[]) {
+export function getEntries(
+  pageManifest: string[],
+  mode: string,
+  manifest: Manifest
+) {
+  const prefix = mode === 'development' ? './pages' : 'pages';
+
   let entries: {
     absolutePagePath: string;
     pageName: string;
   }[] = [];
-
   pageManifest.forEach((page) => {
     if (/pages\/api\//.test(page)) return;
 
-    const pageWithoutBase = page.slice('./pages'.length, page.length - 1);
+    const pageWithoutBase = page.slice(prefix.length, page.length - 1);
     let pageName = '/' + pageWithoutBase.match(/\/(.+)\.(js|jsx|ts|tsx)$/)![1];
 
     if (pageName.endsWith('/index')) {
@@ -49,7 +56,10 @@ export function getEntries(pageManifest: string[]) {
     }
 
     entries.push({
-      absolutePagePath: page,
+      absolutePagePath:
+        mode === 'development'
+          ? page
+          : path.join('dist', manifest[page].file),
       pageName: pageName,
     });
   });
