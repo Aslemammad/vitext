@@ -2,6 +2,7 @@ import { useEffect, useState, Suspense, lazy } from 'react';
 import Head from 'vitext/head'
 import dynamic from 'vitext/dynamic';
 import Component from '../components/Component'
+import '../styles/main.css'
 
 const timeout = (n: number) => new Promise((r) => setTimeout(r, n));
 
@@ -25,7 +26,6 @@ const IndexPage = () => {
   useEffect(() => {
     timeout(200).then(() => setIsMounted(true));
   }, []);
-
 
   return (
     <>
