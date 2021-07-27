@@ -3,3 +3,7 @@ lib
 dist
 tmp
 temp
+.vscode
+.yarn 
+workspace.code-workspace
+TODO.md
