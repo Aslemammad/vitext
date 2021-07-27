@@ -3,6 +3,7 @@ import { HelmetProvider } from 'react-helmet-async';
 
 import App from '/@vitext/_app';
 
+const root = document.getElementById('root');
 const initialData = document.getElementById('__DATA')?.textContent;
 window.__DATA = JSON.parse(initialData!);
 
@@ -15,21 +16,16 @@ async function render() {
 
   const Component = (await ComponentPromise).default;
 
-  console.log(import.meta.env.DEV);
+  const element = (
+    <HelmetProvider>
+      <App Component={Component} props={props} />
+    </HelmetProvider>
+  );
+
   if (import.meta.env.DEV) {
-    ReactDOM.render(
-      <HelmetProvider>
-        <App Component={Component} props={props} />
-      </HelmetProvider>,
-      document.getElementById('root')
-    );
+    ReactDOM.render(element, root);
   } else {
-    ReactDOM.hydrate(
-      <HelmetProvider>
-        <App Component={Component} props={props} />
-      </HelmetProvider>,
-      document.getElementById('root')
-    );
+    ReactDOM.hydrate(element, root);
   }
 }
 
