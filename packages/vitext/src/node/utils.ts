@@ -1,9 +1,23 @@
 // Copied from flareact
+import replace from '@rollup/plugin-replace';
+import reactRefresh from '@vitejs/plugin-react-refresh';
+import * as glob from 'fast-glob';
+import * as fs from 'fs';
+import * as path from 'path';
 import React from 'react';
+import {
+  InlineConfig,
+  Plugin,
+  resolveConfig,
+  UserConfig,
+  ViteDevServer,
+} from 'vite';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
-import { DYNAMIC_PAGE, getEntries } from './route/pages';
+import { createVitextPlugin } from './plugin';
+import { DYNAMIC_PAGE, getEntries, PageType } from './route/pages';
+import { Entries, PageFileType } from './types';
 
 export function extractDynamicParams(source: string, path: string) {
   let test: RegExp | string = source;
@@ -58,7 +72,7 @@ type ComponentFileType = { default: AppType | DocumentType } & Record<
 
 type PromisedComponentFileType = Promise<ComponentFileType> | ComponentFileType;
 
-export function resolveCustomComponents({
+export async function resolveCustomComponents({
   entries,
   loadModule,
 }: {
@@ -82,16 +96,111 @@ export function resolveCustomComponents({
     ) as PromisedComponentFileType;
   }
 
-  return Promise.all([DocumentFile, AppFile] as const);
+  const [{ default: Document }, { default: App }] = await Promise.all([
+    DocumentFile,
+    AppFile,
+  ]);
+  return { Document, App } as {
+    Document: typeof BaseDocument;
+    App: typeof BaseApp;
+  };
 }
 
 /*
  * /@fs/..../@vitext/hack-import/...js to /@vitext/hack-import/...
  */
 export function resolveHackImport(id: string) {
-  const str = '/@vitext/hack-import'
+  const str = '/@vitext/hack-import';
   const portionIndex = id.search(str);
-  const strLength = str.length
+  const strLength = str.length;
   if (portionIndex < 0) return id;
   return id.slice(portionIndex + strLength, id.length - 3);
+}
+
+export async function getEntryPoints(
+  config: UserConfig | ViteDevServer['config']
+) {
+  return await glob.default('./pages/**/*.+(js|jsx|ts|tsx)', {
+    cwd: config.root,
+  });
+}
+
+const returnConfigFiles = (root: string) =>
+  ['vitext.config.js', 'vitext.config.ts'].map((file) =>
+    path.resolve(root, file)
+  );
+
+export async function resolveInlineConfig(
+  options: UserConfig & { root: string },
+  command: 'build' | 'serve'
+): Promise<InlineConfig> {
+  let configFile: string =
+    returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
+    './vitext.config.js';
+
+  const config = await resolveConfig({ ...options, configFile }, command);
+
+  if (command === 'build') {
+    // @ts-ignore vite#issues#4016#4096
+    config.plugins = config.plugins.filter(
+      (p) => p.name !== 'vite:import-analysis'
+    );
+  }
+  return {
+    ...config,
+    assetsInclude: options.assetsInclude,
+    configFile: configFile,
+    plugins: [
+      {
+        ...reactRefresh({
+          exclude: [/vitext\/dynamic\.js/, /vitext\/app\.js/],
+        }),
+        enforce: 'post',
+      },
+      ...createVitextPlugin(),
+      ...config.plugins,
+    ],
+  };
+}
+
+export async function loadPage({
+  entries,
+  loadModule,
+  page,
+}: {
+  entries: Entries;
+  loadModule: ViteDevServer['ssrLoadModule'];
+  page: PageType;
+}) {
+  const absolutePagePath = entries.find(
+    (p) => p.pageName === page.page
+  )!.absolutePagePath;
+
+  return loadModule(absolutePagePath) as Promise<PageFileType>;
+}
+
+export const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;
+export const cssLangRE = new RegExp(cssLangs);
+export const cssModuleRE = new RegExp(`\\.module${cssLangs}`);
+export const directRequestRE = /(\?|&)direct\b/;
+export const commonjsProxyRE = /\?commonjs-proxy/;
+
+export function generateClientCode({
+  entries,
+  pagesModuleId,
+}: {
+  entries: Entries;
+  pagesModuleId: string;
+}) {
+  return `
+const obj = {
+  ${entries.map(
+    (entry) =>
+      `"${entry.pageName}": import("${
+        pagesModuleId + (entry.pageName !== '/' ? entry.pageName : '')
+      }")`
+  )}
+}
+export default obj
+  `;
 }

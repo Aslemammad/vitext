@@ -1,43 +1,11 @@
-import reactRefresh from '@vitejs/plugin-react-refresh';
-import * as fs from 'fs-extra';
-import * as path from 'path';
 import {
   createServer as createViteServer,
-  resolveConfig,
   UserConfig,
 } from 'vite';
 
-import { createVitextPlugin } from './plugin';
-
-const returnConfigFiles = (root: string) =>
-  ['vitext.config.js', 'vitext.config.ts'].map((file) =>
-    path.resolve(root, file)
-  );
-
+import {resolveInlineConfig} from './utils'
 export async function createServer(options: UserConfig & { root: string }) {
-  let configFile: string =
-    returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
-    './vitext.config.js';
+  const config = await resolveInlineConfig(options, 'serve')
 
-  const config = await resolveConfig({ ...options, configFile }, 'serve');
-
-  return createViteServer({
-    ...config,
-    assetsInclude: options.assetsInclude,
-    configFile: configFile,
-    root: config.root,
-    server: config.server,
-    build: config.build,
-    base: config.base,
-    plugins: [
-      {
-        ...reactRefresh({
-          exclude: [/vitext\/dynamic\.js/, /vitext\/app\.js/],
-        }),
-        enforce: 'post',
-      },
-      ...createVitextPlugin(),
-      ...config.plugins,
-    ],
-  });
+  return createViteServer(config)
 }
