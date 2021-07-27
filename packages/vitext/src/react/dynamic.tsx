@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 // Modified to be compatible with vitext
-import React from 'react';
+import * as React from 'react';
 import type { CommonOptions } from 'react-loadable';
 
 import Loadable from './loadable';

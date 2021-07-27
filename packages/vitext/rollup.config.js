@@ -1,5 +1,7 @@
 // @ts-check
+import glob from 'fast-glob'
 import resolve from '@rollup/plugin-node-resolve';
+import * as fs from 'fs';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
@@ -39,7 +41,6 @@ function createDeclarationConfig(inputDir, inputFile, output) {
     },
     external,
     plugins: [dts()],
-
   };
 }
 function createESMConfig(inputDir, inputFile, output) {
@@ -106,9 +107,7 @@ function createComponentsConfig(declaration) {
 
 function createReactConfig(declaration) {
   if (declaration) {
-    return [
-
-    ]
+    return [];
   }
   return [
     createESMConfig('src/react/', 'index.tsx', 'react.js'),
@@ -120,7 +119,7 @@ function createDynamicConfig(declaration) {
   if (declaration) {
     return [
       createDeclarationConfig('src/react/', 'dynamic.tsx', 'dynamic.d.ts'),
-    ]
+    ];
   }
   return [
     createESMConfig('src/react/', 'dynamic.tsx', 'dynamic.js'),
@@ -133,13 +132,33 @@ const config = {
   client: createClientConfig,
   node: createNodeConfig,
   react: createReactConfig,
-  dynamic: createDynamicConfig
-
+  dynamic: createDynamicConfig,
 };
 
-export default function (args) {
+const filesToDelete = [
+  'dynamic.*',
+  'client/*',
+  'react.*',
+  'head.*',
+  'document.*',
+  'core',
+  'details.json',
+  'app.*',
+  'cli.*'
+];
+
+export default async function (args) {
   let c = Object.keys(args).find((key) => key.startsWith('config-'));
   let d = Object.keys(args).find((key) => key.startsWith('config-declaration'));
+
+  if (c === 'config-delete') {
+    const files = await glob(filesToDelete)
+    await Promise.all(files.map(async (file) => {
+      await fs.promises.unlink(file);
+      console.log('deleted:', file);
+    }));
+    process.exit(0);
+  }
 
   if (c) {
     c = c.slice('config-'.length);

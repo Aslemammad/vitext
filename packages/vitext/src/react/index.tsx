@@ -67,6 +67,6 @@ export {
   version,
   lazy,
   Suspense,
+  injectedReact as default 
 };
 
-export default injectedReact;
