@@ -1,8 +1,10 @@
 import chalk from 'chalk';
 import minimist from 'minimist';
 import path from 'path';
+import { build } from 'vite';
 
 import { createServer } from './server';
+import { resolveInlineConfig } from './utils';
 
 const argv: any = minimist(process.argv.slice(2));
 
@@ -12,30 +14,46 @@ console.log(
   )
 );
 
-console.log(chalk.cyan(`vite v${require('vite/package.json').version}`));
-
 const command = argv._[0];
 const root: string = argv._[command ? 1 : 0] || process.cwd();
 
 (async () => {
-  switch (command) {
-    case null:
-    case 'dev':
-      try {
-        const server = await createServer({ root });
+  try {
+    switch (command) {
+      case null:
+      case undefined:
+      case 'dev': {
+        process.env['NODE_ENV'] = 'development';
+        const server = await createServer({ root, mode: 'development' });
         server.listen();
-      } catch (error) {
-        console.error(chalk.red(`failed to start server. error:\n`), error);
-        process.exit(1);
+        break;
       }
-
-      break;
-    case 'build':
-      break;
-    case 'serve':
-      break;
-    default:
-      console.log(chalk.red(`unknown command "${command}".`));
-      process.exit(1);
+      case 'build': {
+        process.env['NODE_ENV'] = 'production';
+        const config = await resolveInlineConfig(
+          { root, mode: 'production' },
+          'build'
+        );
+        await build(config);
+        break;
+      }
+      case 'serve': {
+        process.env['NODE_ENV'] = 'production';
+        const server = await createServer({ root, mode: 'production' });
+        server.listen();
+        break;
+      }
+      default:
+        throw new Error(`unknown command "${command}".`);
+    }
+  } catch (error) {
+    console.log(
+      chalk.red(`failed to run command "${command}". error:\n`),
+      error
+    );
+    console.log(
+      chalk.redBright(`\nvisit github.com/aslemammad/vitext/issues for issues`)
+    );
+    process.exit(1);
   }
 })();
