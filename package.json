@@ -4,10 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "run-s test-serve",
-    "test-serve": "cross-env NODE_ENV=test jest",
-    "test-build": "cross-env VITE_TEST_BUILD=1 jest",
-    "debug-build": "cross-env VITE_TEST_BUILD=1 VITE_PRESERVE_BUILD_ARTIFACTS=1 jest",
+    "test": "run-s test-serve test-build",
+    "test-serve": "cross-env VITEXT_TEST=1 jest --detectOpenHandles --runInBand",
+    "test-build": "cross-env VITEXT_TEST=1 VITE_TEST_BUILD=1 jest --detectOpenHandles --runInBand",
     "postinstall": ""
   },
   "devDependencies": {

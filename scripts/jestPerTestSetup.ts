@@ -4,9 +4,10 @@ import * as path from 'path';
 import { resolve, dirname } from 'path';
 import { ConsoleMessage, Page } from 'playwright-chromium';
 import slash from 'slash';
-import { ViteDevServer, UserConfig } from 'vite';
+import { ViteDevServer, UserConfig, build } from 'vite';
 
 import { createServer } from '../packages/vitext/src/node/server';
+import { resolveInlineConfig } from '../packages/vitext/src/node/utils';
 
 // injected by the test env
 declare global {
@@ -17,6 +18,8 @@ declare global {
     }
   }
 }
+
+const isBuildTest = !!process.env.VITE_TEST_BUILD;
 
 let server: ViteDevServer | http.Server;
 let tempDir: string;
@@ -59,7 +62,7 @@ beforeAll(async () => {
 
       modifyPackageName(path.resolve(tempDir, './package.json'));
 
-      const options: UserConfig = {
+      const options: UserConfig & { root: string } = {
         root: tempDir,
         logLevel: 'error',
         server: {
@@ -77,7 +80,19 @@ beforeAll(async () => {
         },
       };
       process.env.VITE_INLINE = 'inline-serve';
-      server = await createServer(options);
+      process.env['NODE_ENV'] = 'development';
+      if (isBuildTest) {
+        process.env['NODE_ENV'] = 'production';
+        const config = await resolveInlineConfig(
+          { ...options, mode: 'production' },
+          'build'
+        );
+        await build(config);
+      }
+      server = await createServer({
+        ...options,
+        mode: isBuildTest ? 'production' : 'development',
+      });
       server = await server.listen();
 
       const base = server.config.base === '/' ? '' : server.config.base;
@@ -108,5 +123,4 @@ function modifyPackageName(path: string) {
   const parsedData = JSON.parse(data);
   parsedData.name = parsedData.name + '-test';
   fs.writeFileSync(path, JSON.stringify(parsedData), 'utf-8');
-  // process.exit(0);
 }
