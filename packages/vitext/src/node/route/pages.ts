@@ -1,22 +1,23 @@
 import * as path from 'path';
 import type { ParsedUrlQuery } from 'querystring';
 import { Manifest } from 'vite';
+import { Entries } from '../types';
 
 export const DYNAMIC_PAGE = new RegExp('\\[(\\w+)\\]', 'g');
 const publicPaths = ['/favicon.ico', '/__vite_ping'];
 
 export type PageType = ReturnType<typeof resolvePagePath> & {};
 
-export function resolvePagePath(pagePath: string, keys: string[]) {
+export function resolvePagePath(pagePath: string, entries: Entries) {
   if (publicPaths.includes(pagePath)) {
     return;
   }
 
-  const pagesMap = keys.map((page) => {
-    const route = getRouteRegex(page);
+  const pagesMap = entries.map((pageEntry) => {
+    const route = getRouteRegex(pageEntry.pageName);
 
     return {
-      page,
+      pageEntry,
       route,
       matcher: getRouteMatcher(route),
       params: {} as ReturnType<ReturnType<typeof getRouteMatcher>>,
