@@ -1,5 +1,4 @@
 // Copied from flareact
-import replace from '@rollup/plugin-replace';
 import reactRefresh from '@vitejs/plugin-react-refresh';
 import * as glob from 'fast-glob';
 import * as fs from 'fs';
@@ -7,7 +6,6 @@ import * as path from 'path';
 import React from 'react';
 import {
   InlineConfig,
-  Plugin,
   resolveConfig,
   UserConfig,
   ViteDevServer,
@@ -170,10 +168,10 @@ export async function loadPage({
 }: {
   entries: Entries;
   loadModule: ViteDevServer['ssrLoadModule'];
-  page: PageType;
+  page: Entries[number];
 }) {
   const absolutePagePath = entries.find(
-    (p) => p.pageName === page.page
+    (p) => p.pageName === page.pageName
   )!.absolutePagePath;
 
   return loadModule(absolutePagePath) as Promise<PageFileType>;
@@ -184,23 +182,3 @@ export const cssLangRE = new RegExp(cssLangs);
 export const cssModuleRE = new RegExp(`\\.module${cssLangs}`);
 export const directRequestRE = /(\?|&)direct\b/;
 export const commonjsProxyRE = /\?commonjs-proxy/;
-
-export function generateClientCode({
-  entries,
-  pagesModuleId,
-}: {
-  entries: Entries;
-  pagesModuleId: string;
-}) {
-  return `
-const obj = {
-  ${entries.map(
-    (entry) =>
-      `"${entry.pageName}": import("${
-        pagesModuleId + (entry.pageName !== '/' ? entry.pageName : '')
-      }")`
-  )}
-}
-export default obj
-  `;
-}
