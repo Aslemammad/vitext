@@ -18,8 +18,8 @@ export type GetPaths<P extends ParsedUrlQuery = ParsedUrlQuery> = () =>
   | GetPathsResult<P>;
 
 export type GetPropsContext<Q extends ParsedUrlQuery = ParsedUrlQuery> = {
-  req: IncomingMessage;
-  res: ServerResponse;
+  req?: IncomingMessage;
+  res?: ServerResponse;
   params?: Q;
   query: ParsedUrlQuery;
 };
@@ -44,6 +44,6 @@ export type InferGetPropsType<T> = T extends GetProps<infer P, any>
 
 export interface PageFileType {
   default: React.ComponentType<any>;
-  getProps: GetProps;
-  getPaths: GetPaths;
+  getProps?: GetProps;
+  getPaths?: GetPaths;
 }
