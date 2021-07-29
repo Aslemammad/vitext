@@ -1,15 +1,14 @@
 import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
-// @ts-ignore
 
 import Loadable from '../../react/loadable'
 import type { AppType } from '../components/_app';
 import type { DocumentType } from '../components/_document';
-import { getEntries, PageType } from './pages';
+import { GetPropsResult } from '../types';
 
 
 export async function renderToHTML({
-  page,
+  pageName,
   props,
   template,
   pagesModuleId,
@@ -17,21 +16,21 @@ export async function renderToHTML({
   Document,
   App,
 }: {
-  page: PageType;
-  props: Record<string, unknown>;
-  entries: ReturnType<typeof getEntries>;
+  pageName: string;
+  props: GetPropsResult<unknown>['props'];
   template: string;
   pagesModuleId: string;
   Component: React.ComponentType<any>;
   Document: DocumentType;
   App: AppType;
 }): Promise<string> {
+  console.trace(props)
   const WrappedPage = () => <App Component={Component} props={props} />;
 
   const { helmetContext, Page } = Document.renderDocument(Document, {
     props,
     Component: WrappedPage,
-    pageClientPath: pagesModuleId + (page.page !== '/' ? page.page : ''),
+    pageClientPath: pagesModuleId + (pageName !== '/' ? pageName : ''),
   });
 
   await Loadable.preloadAll()
