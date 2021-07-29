@@ -1,6 +1,6 @@
 // @ts-check
-import glob from 'fast-glob'
 import resolve from '@rollup/plugin-node-resolve';
+import glob from 'fast-glob';
 import * as fs from 'fs';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
@@ -75,13 +75,20 @@ function createNodeConfig(declaration) {
   return [createCommonJSConfig('src/node', 'cli.ts', 'cli.js')];
 }
 
-function createClientConfig(declaration) {
+function createInternalConfig(declaration) {
   if (declaration) {
     return [
       // createDeclarationConfig('src/client', 'main.tsx', 'client/main.d.ts'),
     ];
   }
-  return [createESMConfig('src/client', 'main.tsx', 'client/main.js')];
+  return [
+    createESMConfig('src/client', 'main.tsx', 'internal/client/main.js'),
+    // createCommonJSConfig(
+    //   'src/node/route',
+    //   'worker.ts',
+    //   'internal/node/route/worker.js'
+    // ),
+  ];
 }
 
 function createComponentsConfig(declaration) {
@@ -129,7 +136,7 @@ function createDynamicConfig(declaration) {
 
 const config = {
   components: createComponentsConfig,
-  client: createClientConfig,
+  internal: createInternalConfig,
   node: createNodeConfig,
   react: createReactConfig,
   dynamic: createDynamicConfig,
@@ -137,14 +144,14 @@ const config = {
 
 const filesToDelete = [
   'dynamic.*',
-  'client/*',
   'react.*',
   'head.*',
   'document.*',
   'core',
   'details.json',
   'app.*',
-  'cli.*'
+  'cli.*',
+  'internal/**/*',
 ];
 
 export default async function (args) {
@@ -152,11 +159,13 @@ export default async function (args) {
   let d = Object.keys(args).find((key) => key.startsWith('config-declaration'));
 
   if (c === 'config-delete') {
-    const files = await glob(filesToDelete)
-    await Promise.all(files.map(async (file) => {
-      await fs.promises.unlink(file);
-      console.log('deleted:', file);
-    }));
+    const files = await glob(filesToDelete);
+    await Promise.all(
+      files.map(async (file) => {
+        await fs.promises.unlink(file);
+        console.log('deleted:', file);
+      })
+    );
     process.exit(0);
   }
 
