@@ -1,70 +1,102 @@
 import chalk from 'chalk';
-import { Worker } from 'jest-worker';
-import path from 'path';
 import { parse as parseQs } from 'querystring';
-import type { Connect, ViteDevServer } from 'vite';
+import type { ConfigEnv, Connect, Manifest, ViteDevServer } from 'vite';
 
+import { exportPage } from '../route/export';
 import { fetchData } from '../route/fetch';
 import { PageType, resolvePagePath } from '../route/pages';
 import { renderToHTML } from '../route/render';
-import * as RouteWorker from '../route/worker';
 import type { Entries } from '../types';
 import { loadPage, resolveCustomComponents } from '../utils';
 
-console.log(global.require)
-const routeWorker = new Worker(('../route/worker.ts')) as Worker &
-  typeof RouteWorker;
-routeWorker.getStdout().pipe(process.stdout);
-routeWorker.getStderr().pipe(process.stderr);
-
 export async function createPageMiddleware({
+  env,
   entries,
+  clearEntries,
   loadModule,
   pagesModuleId,
   template,
   fixStacktrace,
   transformIndexHtml,
+  manifest,
 }: {
+  env: ConfigEnv;
   pagesModuleId: string;
   template: string;
   entries: Entries;
+  clearEntries: Entries;
   currentPage: PageType;
   loadModule: ViteDevServer['ssrLoadModule'];
   fixStacktrace: ViteDevServer['ssrFixStacktrace'];
   transformIndexHtml: ViteDevServer['transformIndexHtml'];
+  manifest: Manifest;
 }): Promise<Connect.NextHandleFunction> {
   let customComponents = await resolveCustomComponents({
     entries,
     loadModule,
   });
-  console.log(routeWorker);
+
+  if (env.mode === 'production') {
+    clearEntries.forEach(async (entry) => {
+      // setTimeout(() => exportPage({
+      //   entries,
+      //   loadModule,
+      //   template,
+      //   pagesModuleId,
+      //   page: entry,
+      //   App: customComponents.App,
+      //   Document: customComponents.Document,
+      // }), 0)
+      const htmls = await exportPage({
+        entries,
+        loadModule,
+        template,
+        pagesModuleId,
+        page: entry,
+        App: customComponents.App,
+        Document: customComponents.Document,
+      });
+      // if (!htmls) {
+      //   return
+      // }
+      // console.log(await Promise.all(htmls));
+    });
+  }
 
   return async (req, res, next) => {
+
     const [pathname, queryString] = (req.originalUrl || '').split('?')!;
-    const page = resolvePagePath(
-      pathname,
-      entries.map((page) => page.pageName)
-    );
+    const page = resolvePagePath(pathname, entries);
 
     if (!page) {
       return next();
     }
 
     try {
-      const transformedTemplate = await transformIndexHtml(
-        req.url!,
-        template,
-        req.originalUrl
-      );
-      const pageFile = await loadPage({ entries, loadModule, page });
+      const transformedTemplate =
+        env.mode === 'development'
+          ? await transformIndexHtml(req.url!, template, req.originalUrl)
+          : template;
+
+      const pageFile = await loadPage({
+        entries,
+        loadModule,
+        page: page.pageEntry,
+      });
 
       page.query = parseQs(queryString);
 
-      const data = await fetchData({ req, res, pageFile, page });
+      const data = await fetchData({
+        req,
+        res,
+        pageFile,
+        page,
+        env,
+        isGenerating: false,
+      });
 
       const html = await renderToHTML({
-        entries,
-        page,
+        pageName: page.pageEntry.pageName,
         pagesModuleId,
         props: data?.props,
         template: transformedTemplate,
