@@ -2,8 +2,8 @@ const IndexPage = ({ slug }) => {
   return <div id="test">{slug}</div>;
 };
 
-export function getProps({params}) {
-  return { props: params  };
+export function getProps({ params }) {
+  return { props: params };
 }
 
 export function getPaths() {
