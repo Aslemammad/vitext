@@ -3,14 +3,13 @@ import { Loader, transform } from 'esbuild';
 import * as fs from 'fs';
 import MagicString from 'magic-string';
 import * as path from 'path';
-import type { Manifest, Plugin, ResolvedConfig, UserConfig } from 'vite';
+import type { ConfigEnv, Manifest, Plugin, ResolvedConfig, UserConfig } from 'vite';
 
 import { build } from './build';
 import { createPageMiddleware } from './middlewares/page';
 import { getEntries, PageType } from './route/pages';
 import { Entries } from './types';
 import {
-  generateClientCode,
   getEntryPoints,
   removeImportQuery,
   resolveHackImport,
@@ -20,13 +19,13 @@ const modulePrefix = '/@vitext/';
 
 const appEntryId = modulePrefix + 'index.js';
 const pagesModuleId = modulePrefix + 'pages/';
-const allPagesModuleId = modulePrefix + 'all-pages';
 const currentPageModuleId = modulePrefix + 'current-page';
 
 export default function pluginFactory(): Plugin {
   let resolvedConfig: ResolvedConfig | UserConfig;
   let currentPage: PageType = {} as PageType;
   let manifest: Manifest = {};
+  let resolvedEnv: ConfigEnv
 
   let entries: Entries;
   let clearEntries: Entries;
@@ -36,26 +35,29 @@ export default function pluginFactory(): Plugin {
   return {
     name: 'vitext',
     async config(userConfig, env) {
-      const manifestPath = path.resolve(
-          userConfig.root!,
-          userConfig.build!.outDir!,
-          'manifest.json'
-        ),
-        manifest =
-          env.mode === 'production'
-            ? JSON.parse(await fs.promises.readFile(manifestPath, 'utf-8'))
-            : {};
+      resolvedEnv = env
+      if (env.command !== 'build') {
+        const manifestPath = path.resolve(
+            userConfig.root!,
+            userConfig.build!.outDir!,
+            'manifest.json'
+          ),
+          manifest =
+            env.mode === 'production' && env.command === 'serve'
+              ? JSON.parse(await fs.promises.readFile(manifestPath, 'utf-8'))
+              : {};
 
-      const entryPoints =
-        env.mode === 'development'
-          ? await getEntryPoints(userConfig)
-          : Object.keys(manifest).filter((key) => key.startsWith('pages/'));
+        const entryPoints =
+          env.mode === 'development'
+            ? await getEntryPoints(userConfig)
+            : Object.keys(manifest).filter((key) => key.startsWith('pages/'));
 
-      entries = getEntries(entryPoints, env.mode, manifest);
+        entries = getEntries(entryPoints, env.mode, manifest);
 
-      clearEntries = entries.filter(
-        (page) => page.pageName !== '_document' && page.pageName !== '_app'
-      );
+        clearEntries = entries.filter(
+          (page) => page.pageName !== '_document' && page.pageName !== '_app'
+        );
+      }
 
       if (env.command === 'build') {
         resolvedConfig = userConfig;
@@ -63,6 +65,7 @@ export default function pluginFactory(): Plugin {
 
       return {
         ssr: {
+          target: 'webworker',
           external: [
             'prop-types',
             'react-helmet-async',
@@ -111,12 +114,15 @@ export default function pluginFactory(): Plugin {
 
       const pageMiddleware = await createPageMiddleware({
         entries,
+        clearEntries,
         pagesModuleId,
         template,
         transformIndexHtml,
         currentPage,
         loadModule: ssrLoadModule,
         fixStacktrace: ssrFixStacktrace,
+        env: resolvedEnv,
+        manifest
       });
 
       return () => middlewares.use(pageMiddleware);
@@ -136,10 +142,10 @@ export default function pluginFactory(): Plugin {
     async load(id) {
       if (id === currentPageModuleId) {
         id =
-          pagesModuleId + (currentPage!.page !== '/' ? currentPage!.page : '');
+          pagesModuleId + (currentPage.pageEntry.pageName !== '/' ? currentPage.pageEntry.pageName : '');
       }
 
-      if (id === appEntryId) return `import "vitext/client/main.js";`;
+      if (id === appEntryId) return `import "vitext/internal/client/main.js";`;
 
       if (id.startsWith(modulePrefix + '_app')) {
         const page = entries.find(({ pageName }) => pageName === '/_app');
@@ -156,10 +162,6 @@ export default function pluginFactory(): Plugin {
             : __dirname,
           './app.js'
         )}"`;
-      }
-
-      if (id === allPagesModuleId) {
-        return generateClientCode({ entries: clearEntries, pagesModuleId });
       }
 
       id = resolveHackImport(id);
