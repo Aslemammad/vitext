@@ -3,7 +3,6 @@
  *
  * @title page1 title
  */
-import './style.scss';
 
 const Page1 = () => {
   return (

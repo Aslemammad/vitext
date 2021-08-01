@@ -6,7 +6,7 @@ export function getProps({ params }) {
   return { props: params };
 }
 
-export function getPaths() {
+export async function getPaths() {
   return {
     paths: [
       {
