@@ -13,17 +13,17 @@ function build(): Plugin {
       const pages = await getEntryPoints(config);
       const entries: Record<string, string> = {};
       pages.forEach(
-        (p) => (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] = p)
+        // (p) => (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] = path.join(config.root!,p) )
+        (p) => (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] = path.join(config.root!,p) )
       );
 
       return {
         mode: 'production',
-
         optimizeDeps: {
           keepNames: undefined,
         },
         build: {
-          outDir: 'dist',
+          outDir:path.join(config.root!, 'dist'),
           manifest: true,
           brotliSize: true,
           ssr: true,

@@ -24,7 +24,6 @@ export async function renderToHTML({
   Document: DocumentType;
   App: AppType;
 }): Promise<string> {
-  console.trace(props)
   const WrappedPage = () => <App Component={Component} props={props} />;
 
   const { helmetContext, Page } = Document.renderDocument(Document, {

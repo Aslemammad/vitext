@@ -22,6 +22,7 @@ export type GetPropsContext<Q extends ParsedUrlQuery = ParsedUrlQuery> = {
   res?: ServerResponse;
   params?: Q;
   query: ParsedUrlQuery;
+  isExporting: boolean;
 };
 
 type JustProps<P> = { props: P; revalidate?: number | boolean };

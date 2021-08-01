@@ -165,16 +165,18 @@ export async function loadPage({
   entries,
   loadModule,
   page,
+  root
 }: {
   entries: Entries;
   loadModule: ViteDevServer['ssrLoadModule'];
   page: Entries[number];
+  root?: string
 }) {
   const absolutePagePath = entries.find(
     (p) => p.pageName === page.pageName
   )!.absolutePagePath;
 
-  return loadModule(absolutePagePath) as Promise<PageFileType>;
+  return loadModule(path.join(root || '', absolutePagePath)) as Promise<PageFileType>;
 }
 
 export const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;

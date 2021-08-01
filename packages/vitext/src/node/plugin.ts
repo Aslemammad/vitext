@@ -113,6 +113,7 @@ export default function pluginFactory(): Plugin {
       );
 
       const pageMiddleware = await createPageMiddleware({
+        config,
         entries,
         clearEntries,
         pagesModuleId,

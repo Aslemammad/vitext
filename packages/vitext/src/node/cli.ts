@@ -37,9 +37,14 @@ const root: string = argv._[command ? 1 : 0] || process.cwd();
         await build(config);
         break;
       }
+      case 'start':
       case 'serve': {
         process.env['NODE_ENV'] = 'production';
-        const server = await createServer({ root, mode: 'production' });
+        const server = await createServer({
+          root,
+          mode: 'production',
+          server: { hmr: false },
+        });
         server.listen();
         break;
       }
@@ -48,11 +53,13 @@ const root: string = argv._[command ? 1 : 0] || process.cwd();
     }
   } catch (error) {
     console.log(
-      chalk.red(`failed to run command "${command}". error:\n`),
+      chalk.red(`[vitext] failed to run command "${command}". error:\n`),
       error
     );
     console.log(
-      chalk.redBright(`\nvisit github.com/aslemammad/vitext/issues for issues`)
+      chalk.redBright(
+        `\n[vitext] visit github.com/aslemammad/vitext/issues for issues`
+      )
     );
     process.exit(1);
   }
