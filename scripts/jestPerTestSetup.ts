@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import * as http from 'http';
 import * as path from 'path';
-import { resolve, dirname } from 'path';
+import { resolve } from 'path';
 import { ConsoleMessage, Page } from 'playwright-chromium';
 import slash from 'slash';
 import { ViteDevServer, UserConfig, build } from 'vite';
@@ -48,20 +48,25 @@ beforeAll(async () => {
       const playgroundRoot = resolve(__dirname, '../packages/playground');
       const srcDir = resolve(playgroundRoot, testName);
       tempDir = resolve(__dirname, '../temp', testName);
-      await fs.copy(srcDir, tempDir, {
+      // tempDir = path.relative(
+      //   __dirname,
+      //   resolve(__dirname, '../temp', testName)
+      // );
+      fs.copySync(srcDir, tempDir, {
         dereference: true,
         filter(file) {
           file = slash(file);
           return (
             !file.includes('__tests__') &&
-            !file.includes('node_modules') &&
+            // !file.includes('node_modules') &&
             !file.match(/dist(\/|$)/)
           );
         },
       });
 
-      modifyPackageName(path.resolve(tempDir, './package.json'));
+      modifyPackageName(path.join(tempDir, './package.json'));
 
+      console.log(tempDir);
       const options: UserConfig & { root: string } = {
         root: tempDir,
         logLevel: 'error',
@@ -72,6 +77,7 @@ beforeAll(async () => {
             usePolling: true,
             interval: 100,
           },
+          hmr: !isBuildTest,
         },
         build: {
           // skip transpilation and dynamic import polyfills during tests to
