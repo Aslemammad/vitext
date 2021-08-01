@@ -12,18 +12,18 @@ export async function fetchData({
   res,
   pageFile,
   page,
-  isGenerating,
+  isExporting,
 }: {
   env: ConfigEnv;
   req?: Connect.IncomingMessage;
   res?: ServerResponse;
   pageFile: PageFileType;
   page: PageType;
-  isGenerating: boolean;
+  isExporting: boolean;
 }) {
   const query = querystring.parse(req?.originalUrl!);
 
-  let params: querystring.ParsedUrlQuery | undefined;
+  let params: querystring.ParsedUrlQuery | undefined = page.params;
 
   // non-dynamic pages should not have getPaths
   if (
@@ -33,7 +33,6 @@ export async function fetchData({
   ) {
     const { paths } = await fetchPaths({ getPaths: pageFile.getPaths! });
 
-    console.log(paths)
     params = paths.find((p) =>
       isEqual(page.params, p.params, { strict: false })
     )?.params;
@@ -46,11 +45,14 @@ export async function fetchData({
       query,
       params,
       getProps: pageFile.getProps!,
+      isExporting,
     });
-    if (!isGenerating && getPropsResult.notFound) {
+
+    if (!isExporting && getPropsResult.notFound) {
       res!.statusCode = 404;
       return;
     }
+
     if (getPropsResult.revalidate) {
     }
     return getPropsResult;
@@ -64,14 +66,16 @@ export function fetchProps({
   query,
   getProps,
   params,
+  isExporting,
 }: {
   req?: Connect.IncomingMessage;
   res?: ServerResponse;
   query?: querystring.ParsedUrlQuery;
   getProps: GetProps;
   params?: querystring.ParsedUrlQuery;
+  isExporting: boolean;
 }) {
-  return getProps({ req, res, query: query || {}, params });
+  return getProps({ req, res, query: query || {}, params, isExporting });
 }
 
 export function fetchPaths({ getPaths }: { getPaths: GetPaths }) {
