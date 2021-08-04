@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "run-s test-serve test-build",
-    "test-serve": "cross-env VITEXT_TEST=1 jest --detectOpenHandles --runInBand",
-    "test-build": "cross-env VITEXT_TEST=1 VITE_TEST_BUILD=1 jest --detectOpenHandles --runInBand",
+    "test-serve": "cross-env VITEXT_TEST=1 jest",
+    "test-build": "cross-env VITEXT_TEST=1 VITE_TEST_BUILD=1 jest",
     "postinstall": ""
   },
   "devDependencies": {
