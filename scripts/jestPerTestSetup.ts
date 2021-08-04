@@ -52,21 +52,25 @@ beforeAll(async () => {
       //   __dirname,
       //   resolve(__dirname, '../temp', testName)
       // );
+      try {
+        fs.unlinkSync(tempDir);
+      } catch {}
+
       fs.copySync(srcDir, tempDir, {
         dereference: true,
+        errorOnExist: false,
+        overwrite: true,
         filter(file) {
           file = slash(file);
           return (
             !file.includes('__tests__') &&
-            // !file.includes('node_modules') &&
+            !file.includes('node_modules') &&
             !file.match(/dist(\/|$)/)
           );
         },
       });
-
       modifyPackageName(path.join(tempDir, './package.json'));
 
-      console.log(tempDir);
       const options: UserConfig & { root: string } = {
         root: tempDir,
         logLevel: 'error',
