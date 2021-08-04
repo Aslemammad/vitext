@@ -1,8 +1,8 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
-import Head from 'vitext/head'
 import dynamic from 'vitext/dynamic';
-import Component from '../components/Component'
-import '../styles/main.css'
+import Head from 'vitext/head';
+
+import Component from '../components/Component';
 
 const timeout = (n: number) => new Promise((r) => setTimeout(r, n));
 
@@ -41,10 +41,10 @@ const IndexPage = () => {
         <Component />
       </div>
       <div id="dynamic-server-test">
-        <DynamicComponent fallback='loading' />
+        <DynamicComponent fallback="loading" />
       </div>
       <div id="dynamic-no-server-test">
-        <DynamicComponentNoServer fallback='loading' />
+        <DynamicComponentNoServer fallback="loading" />
       </div>
       <div id="suspense-test">
         <Suspense fallback="loading">

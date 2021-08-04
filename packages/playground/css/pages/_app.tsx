@@ -1,4 +1,4 @@
-import { Head } from 'vitext/head';
+import '../styles/main.css'
 
 export default function App({
   Component,
@@ -8,11 +8,6 @@ export default function App({
   props: React.PropsWithChildren<any>;
 }) {
   return (
-    <>
-      <Head>
-        <meta name="description" content="Test" />
-      </Head>
       <Component {...props} />
-    </>
   );
 }

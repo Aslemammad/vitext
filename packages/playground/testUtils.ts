@@ -58,6 +58,10 @@ export async function getBg(el: string | ElementHandle) {
   return el.evaluate((el) => getComputedStyle(el as Element).backgroundImage);
 }
 
+export async function getBgc(el: string | ElementHandle) {
+  el = await toEl(el);
+  return el.evaluate((el) => getComputedStyle(el as Element).backgroundColor);
+}
 export function readFile(filename: string) {
   return fs.readFileSync(path.resolve(testDir, filename), 'utf-8');
 }
@@ -110,7 +114,6 @@ export async function untilUpdated(
   const maxTries = process.env.CI ? 25 : 15;
   for (let tries = 0; tries < maxTries; tries++) {
     const actual = (await poll()) || '';
-    console.log(actual)
     if (actual.indexOf(expected) > -1 || tries === maxTries - 1) {
       expect(actual).toMatch(expected);
       break;
