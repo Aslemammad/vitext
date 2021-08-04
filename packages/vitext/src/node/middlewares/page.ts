@@ -1,67 +1,41 @@
 import chalk from 'chalk';
+import * as path from 'path';
 import { parse as parseQs } from 'querystring';
-import type {
-  ConfigEnv,
-  Connect,
-  Manifest,
-  ResolvedConfig,
-  ViteDevServer,
-} from 'vite';
+import type { ConfigEnv, Connect, Manifest, ViteDevServer } from 'vite';
 
-import { exportPage, loadExportedPage } from '../route/export';
+import { loadExportedPage } from '../route/export';
 import { fetchData } from '../route/fetch';
-import { PageType, resolvePagePath } from '../route/pages';
+import { resolvePagePath } from '../route/pages';
 import { renderToHTML } from '../route/render';
-import type { Entries } from '../types';
+import type { Await, Entries } from '../types';
 import { loadPage, resolveCustomComponents } from '../utils';
 
 export async function createPageMiddleware({
-  config,
+  server,
   env,
   entries,
-  clearEntries,
-  loadModule,
   pagesModuleId,
   template,
-  fixStacktrace,
-  transformIndexHtml,
   manifest,
 }: {
-  config: ResolvedConfig;
+  server: ViteDevServer;
   env: ConfigEnv;
   pagesModuleId: string;
   template: string;
   entries: Entries;
   clearEntries: Entries;
-  currentPage: PageType;
-  loadModule: ViteDevServer['ssrLoadModule'];
-  fixStacktrace: ViteDevServer['ssrFixStacktrace'];
-  transformIndexHtml: ViteDevServer['transformIndexHtml'];
   manifest: Manifest;
 }): Promise<Connect.NextHandleFunction> {
-  let customComponents = await resolveCustomComponents({
-    entries,
-    loadModule,
-  });
+  let customComponents: Await<ReturnType<typeof resolveCustomComponents>>;
 
-  if (env.mode === 'production') {
-    clearEntries.forEach((entry) =>
-      exportPage({
-        config,
-        entries,
-        loadModule,
-        template,
-        pagesModuleId,
-        page: entry,
-        App: customComponents.App,
-        Document: customComponents.Document,
-      })
-    );
-  }
-
-  return async (req, res, next) => {
+  return async function pageMiddleware(req, res, next) {
     const [pathname, queryString] = (req.originalUrl || '').split('?')!;
     const page = resolvePagePath(pathname, entries);
+
+    customComponents = await resolveCustomComponents({
+      entries,
+      server,
+    });
 
     if (!page) {
       return next();
@@ -71,7 +45,7 @@ export async function createPageMiddleware({
       let html: string | undefined;
       if (env.mode === 'production') {
         html = await loadExportedPage({
-          root: config.root!,
+          root: server.config.root!,
           pageName: page.pageEntry.pageName,
           params: page.params,
         });
@@ -80,14 +54,17 @@ export async function createPageMiddleware({
       if (!html) {
         const transformedTemplate =
           env.mode === 'development'
-            ? await transformIndexHtml(req.url!, template, req.originalUrl)
+            ? await server.transformIndexHtml(
+                req.url!,
+                template,
+                req.originalUrl
+              )
             : template;
 
         const pageFile = await loadPage({
           entries,
-          loadModule,
+          server,
           page: page.pageEntry,
-          root: config.root!
         });
 
         page.query = parseQs(queryString);
@@ -102,13 +79,16 @@ export async function createPageMiddleware({
         });
 
         html = await renderToHTML({
-          pageName: page.pageEntry.pageName,
+          server,
+          entries,
+          pageEntry: page.pageEntry,
           pagesModuleId,
           props: data?.props,
           template: transformedTemplate,
           Component: pageFile.default,
           Document: customComponents.Document!,
           App: customComponents.App!,
+          manifest
         });
       }
 
@@ -116,8 +96,8 @@ export async function createPageMiddleware({
       res.setHeader('Content-Type', 'text/html');
       res.end(html);
     } catch (e) {
-      fixStacktrace(e);
-      config.logger.error(chalk.red(e));
+      server.ssrFixStacktrace(e);
+      server.config.logger.error(chalk.red(e));
       next(e);
     }
   };

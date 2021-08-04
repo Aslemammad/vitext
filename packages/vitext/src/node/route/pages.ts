@@ -1,6 +1,7 @@
 import * as path from 'path';
 import type { ParsedUrlQuery } from 'querystring';
 import { Manifest } from 'vite';
+
 import { Entries } from '../types';
 
 export const DYNAMIC_PAGE = new RegExp('\\[(\\w+)\\]', 'g');
@@ -45,6 +46,7 @@ export function getEntries(
   let entries: {
     absolutePagePath: string;
     pageName: string;
+    manifestAddress?: string;
   }[] = [];
   pageManifest.forEach((page) => {
     if (/pages\/api\//.test(page)) return;
@@ -58,10 +60,9 @@ export function getEntries(
 
     entries.push({
       absolutePagePath:
-        mode === 'development'
-          ? page
-          : path.join('dist', manifest[page].file),
+        mode === 'development' ? page : path.join('dist', manifest[page].file),
       pageName: pageName,
+      manifestAddress: mode === 'development' ? undefined : page,
     });
   });
   return entries;

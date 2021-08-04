@@ -4,17 +4,12 @@ import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
 import React from 'react';
-import {
-  InlineConfig,
-  resolveConfig,
-  UserConfig,
-  ViteDevServer,
-} from 'vite';
+import { InlineConfig, resolveConfig, UserConfig, ViteDevServer } from 'vite';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
 import { createVitextPlugin } from './plugin';
-import { DYNAMIC_PAGE, getEntries, PageType } from './route/pages';
+import { DYNAMIC_PAGE, getEntries } from './route/pages';
 import { Entries, PageFileType } from './types';
 
 export function extractDynamicParams(source: string, path: string) {
@@ -72,24 +67,24 @@ type PromisedComponentFileType = Promise<ComponentFileType> | ComponentFileType;
 
 export async function resolveCustomComponents({
   entries,
-  loadModule,
+  server,
 }: {
   entries: ReturnType<typeof getEntries>;
-  loadModule: (url: string) => Promise<Record<string, any>>;
+  server: ViteDevServer;
 }) {
   const customApp = entries.find((page) => page.pageName === '/_app');
   const customDocument = entries.find((page) => page.pageName === '/_document');
 
   let AppFile: PromisedComponentFileType = { default: BaseApp };
   if (customApp) {
-    AppFile = loadModule(
+    AppFile = server.ssrLoadModule(
       customApp!.absolutePagePath
     ) as PromisedComponentFileType;
   }
 
   let DocumentFile: PromisedComponentFileType = { default: BaseDocument };
   if (customDocument) {
-    DocumentFile = loadModule(
+    DocumentFile = server.ssrLoadModule(
       customDocument!.absolutePagePath
     ) as PromisedComponentFileType;
   }
@@ -144,6 +139,7 @@ export async function resolveInlineConfig(
       (p) => p.name !== 'vite:import-analysis'
     );
   }
+
   return {
     ...config,
     assetsInclude: options.assetsInclude,
@@ -162,21 +158,21 @@ export async function resolveInlineConfig(
 }
 
 export async function loadPage({
+  server,
   entries,
-  loadModule,
   page,
-  root
 }: {
+  server: ViteDevServer;
   entries: Entries;
-  loadModule: ViteDevServer['ssrLoadModule'];
   page: Entries[number];
-  root?: string
 }) {
   const absolutePagePath = entries.find(
     (p) => p.pageName === page.pageName
   )!.absolutePagePath;
 
-  return loadModule(path.join(root || '', absolutePagePath)) as Promise<PageFileType>;
+  return server.ssrLoadModule(
+    path.join(server.config.root || '', absolutePagePath)
+  ) as Promise<PageFileType>;
 }
 
 export const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;

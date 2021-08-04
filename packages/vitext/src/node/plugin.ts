@@ -3,15 +3,24 @@ import { Loader, transform } from 'esbuild';
 import * as fs from 'fs';
 import MagicString from 'magic-string';
 import * as path from 'path';
-import type { ConfigEnv, Manifest, Plugin, ResolvedConfig, UserConfig } from 'vite';
+import type {
+  ConfigEnv,
+  Manifest,
+  Plugin,
+  ResolvedConfig,
+  UserConfig,
+  ViteDevServer,
+} from 'vite';
 
-import { build } from './build';
+import { build, getAssets, writeAssets } from './build';
 import { createPageMiddleware } from './middlewares/page';
+import { exportPage } from './route/export';
 import { getEntries, PageType } from './route/pages';
 import { Entries } from './types';
 import {
   getEntryPoints,
   removeImportQuery,
+  resolveCustomComponents,
   resolveHackImport,
 } from './utils';
 
@@ -25,8 +34,9 @@ export default function pluginFactory(): Plugin {
   let resolvedConfig: ResolvedConfig | UserConfig;
   let currentPage: PageType = {} as PageType;
   let manifest: Manifest = {};
-  let resolvedEnv: ConfigEnv
+  let resolvedEnv: ConfigEnv;
 
+  let server: ViteDevServer;
   let entries: Entries;
   let clearEntries: Entries;
 
@@ -35,18 +45,20 @@ export default function pluginFactory(): Plugin {
   return {
     name: 'vitext',
     async config(userConfig, env) {
-      resolvedEnv = env
+      resolvedEnv = env;
       if (env.command !== 'build') {
-        const manifestPath = path.resolve(
-            userConfig.root!,
-            userConfig.build!.outDir!,
-            'manifest.json'
-          ),
-          manifest =
-            env.mode === 'production' && env.command === 'serve'
-              ? JSON.parse(await fs.promises.readFile(manifestPath, 'utf-8'))
-              : {};
+        const manifestPath = path.join(
+          userConfig.root!,
+          userConfig.build!.outDir!,
+          'manifest.json'
+        );
 
+        Object.assign(
+          manifest,
+          env.mode === 'production' && env.command === 'serve'
+            ? JSON.parse(await fs.promises.readFile(manifestPath, 'utf-8'))
+            : {}
+        );
         const entryPoints =
           env.mode === 'development'
             ? await getEntryPoints(userConfig)
@@ -55,7 +67,11 @@ export default function pluginFactory(): Plugin {
         entries = getEntries(entryPoints, env.mode, manifest);
 
         clearEntries = entries.filter(
-          (page) => page.pageName !== '_document' && page.pageName !== '_app'
+          (page) =>
+            !(
+              page.pageName.includes('_document') ||
+              page.pageName.includes('_app')
+            )
         );
       }
 
@@ -75,6 +91,7 @@ export default function pluginFactory(): Plugin {
             'vitext/app.node',
           ],
         },
+        css: { postcss: null },
         optimizeDeps: {
           include: [
             'react',
@@ -98,35 +115,49 @@ export default function pluginFactory(): Plugin {
         },
       };
     },
-    async configureServer({
-      middlewares,
-      ssrLoadModule,
-      ssrFixStacktrace,
-      transformIndexHtml,
-      config,
-    }) {
+    configResolved(config) {
       resolvedConfig = config;
+    },
+    async configureServer(_server) {
+      server = _server;
 
       const template = await fs.promises.readFile(
-        path.resolve(config.root, 'index.html'),
+        path.join(server.config.root, 'index.html'),
         'utf-8'
       );
 
       const pageMiddleware = await createPageMiddleware({
-        config,
+        server,
         entries,
         clearEntries,
         pagesModuleId,
         template,
-        transformIndexHtml,
-        currentPage,
-        loadModule: ssrLoadModule,
-        fixStacktrace: ssrFixStacktrace,
+        manifest,
         env: resolvedEnv,
-        manifest
       });
 
-      return () => middlewares.use(pageMiddleware);
+      return async () => {
+        server.middlewares.use(pageMiddleware);
+        let customComponents = await resolveCustomComponents({
+          entries,
+          server,
+        });
+
+        if (resolvedEnv.mode === 'production') {
+          clearEntries.forEach((entry) =>
+            exportPage({
+              manifest,
+              server,
+              entries,
+              template,
+              pagesModuleId,
+              page: entry,
+              App: customComponents.App,
+              Document: customComponents.Document,
+            })
+          );
+        }
+      };
     },
     resolveId(id) {
       if (id.startsWith('.' + modulePrefix)) id = id.slice(1);
@@ -143,7 +174,10 @@ export default function pluginFactory(): Plugin {
     async load(id) {
       if (id === currentPageModuleId) {
         id =
-          pagesModuleId + (currentPage.pageEntry.pageName !== '/' ? currentPage.pageEntry.pageName : '');
+          pagesModuleId +
+          (currentPage.pageEntry.pageName !== '/'
+            ? currentPage.pageEntry.pageName
+            : '');
       }
 
       if (id === appEntryId) return `import "vitext/internal/client/main.js";`;
@@ -207,8 +241,12 @@ export function dependencyInjector(): Plugin {
     },
     async transform(code, id, ssr) {
       if (!ssr) {
-        return code;
+        return;
       }
+      const [file] = id.split('?');
+      if (!file.endsWith('js')) return;
+      id = file;
+
       let ext = path.extname(id).slice(1);
       if (ext === 'mjs' || ext === 'cjs') ext = 'js';
 
@@ -233,5 +271,11 @@ export function dependencyInjector(): Plugin {
   };
 }
 export function createVitextPlugin(): Plugin[] {
-  return [pluginFactory(), dependencyInjector(), build()];
+  return [
+    pluginFactory(),
+    dependencyInjector(),
+    build(),
+    getAssets(),
+    writeAssets(),
+  ];
 }

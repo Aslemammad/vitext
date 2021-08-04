@@ -1,10 +1,15 @@
 import * as path from 'path';
-import { GetManualChunk, GetModuleInfo } from 'rollup';
-import type { Plugin } from 'vite';
+import {
+  GetManualChunk,
+  GetModuleInfo,
+  OutputAsset,
+  OutputBundle,
+} from 'rollup';
+import type { Plugin} from 'vite';
 
 import { cssLangRE, directRequestRE, getEntryPoints } from './utils';
 
-function build(): Plugin {
+export function build(): Plugin {
   return {
     name: 'vitext:build',
     apply: 'build',
@@ -13,8 +18,9 @@ function build(): Plugin {
       const pages = await getEntryPoints(config);
       const entries: Record<string, string> = {};
       pages.forEach(
-        // (p) => (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] = path.join(config.root!,p) )
-        (p) => (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] = path.join(config.root!,p) )
+        (p) =>
+          (entries[p.substr(0, p.lastIndexOf('.')).replace('./', '')] =
+            path.join(config.root!, p))
       );
 
       return {
@@ -23,22 +29,68 @@ function build(): Plugin {
           keepNames: undefined,
         },
         build: {
-          outDir:path.join(config.root!, 'dist'),
+          outDir: path.join(config.root!, 'dist'),
           manifest: true,
           brotliSize: true,
           ssr: true,
-          minify: 'terser',
+          minify: true,
           rollupOptions: {
             input: entries,
             preserveEntrySignatures: 'allow-extension',
             output: {
               format: 'es',
+              exports: 'named',
               manualChunks: createMoveToVendorChunkFn(),
             },
           },
           polyfillDynamicImport: false,
         },
       };
+    },
+  };
+}
+
+let assetsBundle: OutputBundle = {};
+
+export function getAssets(): Plugin {
+  return {
+    name: 'vitext:get-assets',
+    apply: 'build',
+    enforce: 'pre',
+    generateBundle(_, bundle) {
+      const wipAssets: {
+        [fileName: string]: OutputAsset;
+      } = {};
+
+      for (const file in bundle) {
+        if (bundle[file].type === 'asset') {
+          const asset = bundle[file] as OutputAsset;
+          const source = asset.source.toString();
+          wipAssets[asset.name!] = wipAssets[asset.name!] || asset;
+          // inlined css (export ...) are the referenced files, but with incorrect source
+          if (source.startsWith('export ')) {
+            wipAssets[asset.name!].fileName = asset.fileName;
+          } else {
+            // plain css files source is correct
+            wipAssets[asset.name!].source = asset.source;
+          }
+        }
+      }
+      for (const file in wipAssets) {
+        const asset = wipAssets[file];
+        assetsBundle[asset.fileName] = asset;
+      }
+    },
+  };
+}
+
+export function writeAssets(): Plugin {
+  return {
+    name: 'vitext:write-assets',
+    apply: 'build',
+    enforce: 'post',
+    generateBundle(_, bundle) {
+      Object.assign(bundle, assetsBundle);
     },
   };
 }
@@ -106,4 +158,3 @@ function staticImportedByEntry(
   cache.set(id, someImporterIs);
   return someImporterIs;
 }
-export { build };

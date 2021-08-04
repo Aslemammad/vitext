@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { mkdirp } from 'fs-extra';
 import * as path from 'path';
 import { ParsedUrlQuery } from 'querystring';
-import { ResolvedConfig, ViteDevServer } from 'vite';
+import { Manifest, ViteDevServer } from 'vite';
 
 import { AppType } from '../components/_app';
 import { DocumentType } from '../components/_document';
@@ -45,23 +45,23 @@ export async function loadExportedPage({
   }
 }
 export async function exportPage({
-  config,
+  server,
   entries,
   page,
   template,
   pagesModuleId,
   Document,
   App,
-  loadModule,
+  manifest
 }: {
-  config: ResolvedConfig;
+  server: ViteDevServer;
   entries: Entries;
   page: Entries[number];
   template: string;
   pagesModuleId: string;
   Document: DocumentType;
   App: AppType;
-  loadModule: ViteDevServer['ssrLoadModule'];
+  manifest: Manifest
 }) {
   const mutex = new Mutex();
   try {
@@ -69,7 +69,7 @@ export async function exportPage({
       default: Component,
       getPaths,
       getProps,
-    } = await loadPage({ entries, loadModule, page, root: config.root });
+    } = await loadPage({server, entries, page });
 
     if (!getPaths && getProps) {
       return;
@@ -92,22 +92,25 @@ export async function exportPage({
       ? paths.map(({ params }) => fetchProps({ getProps: getProps!, params, isExporting: true }))
       : [{ props: {} }];
 
-    const dir = path.join(config.root!, 'dist/out', page.pageName);
+    const dir = path.join(server.config.root!, 'dist/out', page.pageName);
 
-    const manifest = resultsArray.map(async (resultPromise, index) => {
+    const exportManifest = resultsArray.map(async (resultPromise, index) => {
       const result = await resultPromise;
       const params = paths ? paths[index].params : undefined;
 
       return {
         params,
         html: await renderToHTML({
+          server,
+          entries,
           template,
           pagesModuleId,
           Component,
           Document,
           App,
-          pageName: page.pageName,
+          pageEntry: page,
           props: result.props,
+          manifest
         }),
       };
     });
@@ -116,7 +119,7 @@ export async function exportPage({
     await mkdirp(path.dirname(manifestAddress));
     await fs.promises.writeFile(manifestAddress, JSON.stringify([]));
 
-    manifest.forEach(async (filePromise, id) => {
+    exportManifest.forEach(async (filePromise, id) => {
       let release: MutexInterface.Releaser | undefined;
       try {
         const file = await filePromise;
@@ -145,7 +148,7 @@ export async function exportPage({
           error
         );
 
-        config.logger.error(
+        server.config.logger.error(
           chalk.red(
             `exporting ${page.pageName} failed. error:\n${
               error.stack || error.message
@@ -159,11 +162,11 @@ export async function exportPage({
         if (release) release();
       }
     });
-    config.logger.info(chalk.green(`${page.pageName} exported successfully`), {
+    server.config.logger.info(chalk.green(`${page.pageName} exported successfully`), {
       timestamp: true,
     });
   } catch (error) {
-    config.logger.error(
+    server.config.logger.error(
       chalk.red(
         `exporting ${page.pageName} failed. error:\n${
           error.stack || error.message
