@@ -215,7 +215,7 @@ export default function pluginFactory(): Plugin {
           ({ pageName }) => pageName === plainPageName
         );
         if (!page) {
-          return id;
+          return;
         }
 
         const absolutePagePath = path.resolve(
@@ -247,10 +247,10 @@ export function dependencyInjector(): Plugin {
     },
     async transform(code, id, ssr) {
       if (!ssr) {
-        return ;
+        return code
       }
       const [file] = id.split('?');
-      if (!jsLangsRE.test(id)) return ;
+      if (!jsLangsRE.test(id)) return code;
       id = file;
 
       let ext = path.extname(id).slice(1);
@@ -272,6 +272,7 @@ export function dependencyInjector(): Plugin {
 
       return {
         code: s.toString(),
+        map: s.generateMap()
       };
     },
   };

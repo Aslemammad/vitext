@@ -4,7 +4,7 @@ import * as glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
 import React from 'react';
-import { InlineConfig, resolveConfig, UserConfig, ViteDevServer } from 'vite';
+import { InlineConfig, resolveConfig, ResolvedConfig, UserConfig, ViteDevServer } from 'vite';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
@@ -12,6 +12,47 @@ import { createVitextPlugin } from './plugin';
 import { DYNAMIC_PAGE, getEntries } from './route/pages';
 import { Entries, PageFileType } from './types';
 
+export function isObject(value: unknown): value is Record<string, any> {
+  return Object.prototype.toString.call(value) === '[object Object]'
+}
+
+export interface Hostname {
+  // undefined sets the default behaviour of server.listen
+  host: string | undefined
+  // resolve to localhost when possible
+  name: string
+}
+
+
+export function resolveHostname(
+  optionsHost: string | boolean | undefined
+): Hostname {
+  let host: string | undefined
+  if (
+    optionsHost === undefined ||
+    optionsHost === false ||
+    optionsHost === 'localhost'
+  ) {
+    // Use a secure default
+    host = '127.0.0.1'
+  } else if (optionsHost === true) {
+    // If passed --host in the CLI without arguments
+    host = undefined // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+  } else {
+    host = optionsHost
+  }
+
+  // Set host name to localhost when possible, unless the user explicitly asked for '127.0.0.1'
+  const name =
+    (optionsHost !== '127.0.0.1' && host === '127.0.0.1') ||
+    host === '0.0.0.0' ||
+    host === '::' ||
+    host === undefined
+      ? 'localhost'
+      : host
+
+  return { host, name }
+}
 export function extractDynamicParams(source: string, path: string) {
   let test: RegExp | string = source;
   let parts = [];
@@ -124,9 +165,9 @@ const returnConfigFiles = (root: string) =>
   );
 
 export async function resolveInlineConfig(
-  options: UserConfig & { root: string },
+  options: InlineConfig & UserConfig & { root: string },
   command: 'build' | 'serve'
-): Promise<InlineConfig> {
+): Promise<InlineConfig | ResolvedConfig> {
   let configFile: string =
     returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
     './vitext.config.js';
@@ -176,6 +217,8 @@ export async function loadPage({
 }
 
 export const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;
+export const jsLangs = `\\.(js|ts|jsx|tsx)($|\\?)`;
+export const jsLangsRE = new RegExp(jsLangs);
 export const cssLangRE = new RegExp(cssLangs);
 export const cssModuleRE = new RegExp(`\\.module${cssLangs}`);
 export const directRequestRE = /(\?|&)direct\b/;

@@ -17,6 +17,7 @@ function collectCss(
   if (!mod.url) return;
   if (visitedModules.has(mod.url)) return;
   visitedModules.add(mod.url);
+
   if (mod.url.endsWith('.css')) {
     preloadUrls.add(mod.url);
   }
