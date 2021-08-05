@@ -1,0 +1,29 @@
+{
+  "name": "intro",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vitext dev",
+    "build": "vitext build",
+    "start": "vitext serve"
+  },
+  "dependencies": {
+    "@react-three/drei": "^7.3.1",
+    "@react-three/fiber": "^7.0.6",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "three": "^0.131.3",
+    "vitext": "0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.3.3",
+    "@tailwindcss/typography": "^0.4.1",
+    "@types/react": "^17.0.3",
+    "autoprefixer": "^10.3.1",
+    "postcss-windicss": "^1.0.0",
+    "tailwindcss": "^2.2.7",
+    "vite-plugin-windicss": "^1.2.7",
+    "windicss": "^3.1.6"
+  }
+}
