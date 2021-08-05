@@ -19,6 +19,7 @@ import { getEntries, PageType } from './route/pages';
 import { Entries } from './types';
 import {
   getEntryPoints,
+  jsLangsRE,
   removeImportQuery,
   resolveCustomComponents,
   resolveHackImport,
@@ -91,7 +92,6 @@ export default function pluginFactory(): Plugin {
             'vitext/app.node',
           ],
         },
-        css: { postcss: null },
         optimizeDeps: {
           include: [
             'react',
@@ -168,7 +168,8 @@ export default function pluginFactory(): Plugin {
         return id;
       }
 
-      return id.startsWith(modulePrefix) ? id : undefined;
+      // return id.startsWith(modulePrefix) ? id : undefined;
+      return id;
     },
 
     async load(id) {
@@ -214,7 +215,7 @@ export default function pluginFactory(): Plugin {
           ({ pageName }) => pageName === plainPageName
         );
         if (!page) {
-          return;
+          return id;
         }
 
         const absolutePagePath = path.resolve(
@@ -238,13 +239,18 @@ export function dependencyInjector(): Plugin {
       } else if (id.includes('react.js')) {
         return 'vitext/react';
       }
+
+      // /@id/vitext/react
+      if (id.includes('vitext/react')) {
+        return 'vitext/react';
+      }
     },
     async transform(code, id, ssr) {
       if (!ssr) {
-        return;
+        return ;
       }
       const [file] = id.split('?');
-      if (!file.endsWith('js')) return;
+      if (!jsLangsRE.test(id)) return ;
       id = file;
 
       let ext = path.extname(id).slice(1);
