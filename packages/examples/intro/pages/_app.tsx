@@ -1,4 +1,4 @@
-import '/@windicss/windi.css'
+import 'virtual:windi.css'
 import '../styles/main.css'
 import Layout from '../components/Layout';
 
