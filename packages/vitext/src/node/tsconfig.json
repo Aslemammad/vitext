@@ -2,12 +2,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
+    "module": "es2020",
     "outDir": "../../dist",
-    "module": "commonjs",
     "lib": ["ESNext", "ES2020.String", "ES2020"],
     "jsx": "react-jsx",
-    "sourceMap": false,
-    "rootDir": "./"
+    "sourceMap": true,
+    "rootDir": "./",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["./"]
 }

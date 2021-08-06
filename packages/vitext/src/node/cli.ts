@@ -1,7 +1,5 @@
 import cac from 'cac';
 import chalk from 'chalk';
-// import minimist from 'minimist';
-import path from 'path';
 import {
   build,
   BuildOptions,
@@ -13,83 +11,13 @@ import {
   ServerOptions,
 } from 'vite';
 
-import { preview } from './preview';
-import { createServer } from './server';
-import { resolveInlineConfig } from './utils';
+import * as utils from './utils';
 
-// const argv: any = minimist(process.argv.slice(2));
 
-console.log(
-  chalk.cyan(
-    `vitext v${require(path.resolve(__dirname, 'package.json')).version}`
-  )
-);
 
-// const command = argv._[0];
-// const root: string = argv._[command ? 1 : 0] || process.cwd();
-//
-// (async () => {
-//   try {
-//     switch (command) {
-//       case null:
-//       case undefined:
-//       case 'dev': {
-//         process.env['NODE_ENV'] = 'development';
-//         const server = await createServer({ root, mode: 'development' });
-//         server.listen();
-//         break;
-//       }
-//       case 'build': {
-//         process.env['NODE_ENV'] = 'production';
-//         const config = await resolveInlineConfig(
-//           { root, mode: 'production' },
-//           'build'
-//         );
-//         await optimizeDeps(config as unknown as ResolvedConfig, true, true);
-//         await build(config);
-//         break;
-//       }
-//       case 'start':
-//       case 'serve': {
-//         process.env['NODE_ENV'] = 'production';
-        // const server = await createServer({
-        //   root,
-        //   mode: 'production',
-        //   server: { hmr: false },
-        // });
-        // server.listen();
-//
-//         const config = (await resolveInlineConfig(
-//           { root, mode: 'production' },
-//           'serve'
-//         )) as unknown as ResolvedConfig;
-//
-//         await preview(
-//           config,
-//           cleanOptions(config) as {
-//             host?: string;
-//             port?: number;
-//           }
-//         );
-//         break;
-//       }
-//       default:
-//         throw new Error(`unknown command "${command}".`);
-//     }
-//   } catch (error) {
-//     console.log(
-//       chalk.red(`[vitext] failed to run command "${command}". error:\n`),
-//       error
-//     );
-//     console.log(
-//       chalk.redBright(
-//         `\n[vitext] visit github.com/aslemammad/vitext/issues for issues`
-//       )
-//     );
-//     process.exit(1);
-//   }
-// })();
-//
+
+console.log(chalk.cyan(`vitext v${require('vitext/package.json').version}`));
+
 const cli = cac('vitext');
 
 // global options
@@ -159,26 +87,32 @@ cli
     '--force',
     `[boolean] force the optimizer to ignore the cache and re-bundle`
   )
-  .action(async (root: string = process.cwd(), options: ServerOptions & GlobalCLIOptions) => {
-    try {
-      process.env['NODE_ENV'] = options.mode || 'development';
-      const server = await createServer({
-        root,
-        base: options.base,
-        mode: options.mode || 'development',
-        configFile: options.config,
-        logLevel: options.logLevel,
-        clearScreen: options.clearScreen,
-        server: cleanOptions(options) as ServerOptions,
-      });
-      server.listen();
-    } catch (e) {
-      createLogger(options.logLevel).error(
-        chalk.red(`error when starting dev server:\n${e.stack}`)
-      );
-      process.exit(1);
+  .action(
+    async (
+      root: string = process.cwd(),
+      options: ServerOptions & GlobalCLIOptions
+    ) => {
+      const { createServer } = await import('./server');
+      try {
+        process.env['NODE_ENV'] = options.mode || 'development';
+        const server = await createServer({
+          root,
+          base: options.base,
+          mode: options.mode || 'development',
+          configFile: options.config,
+          logLevel: options.logLevel,
+          clearScreen: options.clearScreen,
+          server: cleanOptions(options) as ServerOptions,
+        });
+        server.listen();
+      } catch (e) {
+        createLogger(options.logLevel).error(
+          chalk.red(`error when starting dev server:\n${e.stack}`)
+        );
+        process.exit(1);
+      }
     }
-  });
+  );
 
 // build
 cli
@@ -214,33 +148,38 @@ cli
   )
   .option('-m, --mode <mode>', `[string] set env mode`)
   .option('-w, --watch', `[boolean] rebuilds when modules have changed on disk`)
-  .action(async (root: string = process.cwd(), options: BuildOptions & GlobalCLIOptions) => {
-    const buildOptions = cleanOptions(options) as BuildOptions;
+  .action(
+    async (
+      root: string = process.cwd(),
+      options: BuildOptions & GlobalCLIOptions
+    ) => {
+      const buildOptions = cleanOptions(options) as BuildOptions;
 
-    process.env['NODE_ENV'] = options.mode || 'production';
+      process.env['NODE_ENV'] = options.mode || 'production';
 
-    try {
-      const config = (await resolveInlineConfig(
-        {
-          root,
-          base: options.base,
-          mode: options.mode || 'production',
-          configFile: options.config,
-          logLevel: options.logLevel,
-          clearScreen: options.clearScreen,
-          build: buildOptions,
-        },
-        'build'
-      )) as InlineConfig;
-      // await optimizeDeps(config as unknown as ResolvedConfig, true, true);
-      await build(config);
-    } catch (e) {
-      createLogger(options.logLevel).error(
-        chalk.red(`error during build:\n${e.stack}`)
-      );
-      process.exit(1);
+      try {
+        const config = (await utils.resolveInlineConfig(
+          {
+            root,
+            base: options.base,
+            mode: options.mode || 'production',
+            configFile: options.config,
+            logLevel: options.logLevel,
+            clearScreen: options.clearScreen,
+            build: buildOptions,
+          },
+          'build'
+        )) as InlineConfig;
+        // await optimizeDeps(config as unknown as ResolvedConfig, true, true);
+        await build(config);
+      } catch (e) {
+        createLogger(options.logLevel).error(
+          chalk.red(`error during build:\n${e.stack}`)
+        );
+        process.exit(1);
+      }
     }
-  });
+  );
 
 // optimize
 cli
@@ -250,9 +189,12 @@ cli
     `[boolean] force the optimizer to ignore the cache and re-bundle`
   )
   .action(
-    async (root: string = process.cwd(), options: { force?: boolean } & GlobalCLIOptions) => {
+    async (
+      root: string = process.cwd(),
+      options: { force?: boolean } & GlobalCLIOptions
+    ) => {
       try {
-        const config = (await resolveInlineConfig(
+        const config = (await utils.resolveInlineConfig(
           {
             root,
             base: options.base,
@@ -280,7 +222,7 @@ cli
   .option('--strictPort', `[boolean] exit if specified port is already in use`)
   .action(
     async (
-      root: string = process.cwd(), 
+      root: string = process.cwd(),
       options: {
         host?: string;
         port?: number;
@@ -289,9 +231,10 @@ cli
         strictPort?: boolean;
       } & GlobalCLIOptions
     ) => {
-    process.env['NODE_ENV'] = options.mode || 'production';
+      process.env['NODE_ENV'] = options.mode || 'production';
+      const { preview } = await import('./preview');
       try {
-        const config = (await resolveInlineConfig(
+        const config = (await utils.resolveInlineConfig(
           {
             root,
             mode: options.mode || 'production',
@@ -323,6 +266,6 @@ cli
   );
 
 cli.help();
-cli.version(require(path.resolve(__dirname, 'package.json')).version);
+cli.version(require('vitext/package.json').version);
 
 cli.parse();

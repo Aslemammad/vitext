@@ -15,6 +15,7 @@ import {
   ResolvedConfig,
   ServerOptions,
   UserConfig,
+  ViteDevServer,
 } from 'vite';
 
 import { proxyMiddleware } from './proxy';
@@ -212,7 +213,7 @@ export async function httpServerStart(
 export async function preview(
   config: ResolvedConfig,
   serverOptions: { host?: string; port?: number } = {}
-): Promise<void> {
+): Promise<ViteDevServer> {
   const vitext = await createServer({
     ...config,
     server: { ...config.server, ...serverOptions, middlewareMode: null },
@@ -235,5 +236,5 @@ export async function preview(
   // @ts-ignore
   vitext.middlewares.use(compression());
 
-  await vitext.listen();
+  return await vitext.listen();
 }

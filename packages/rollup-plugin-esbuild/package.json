@@ -11,7 +11,9 @@
     "build": "ts-node scripts/build",
     "prepublishOnly": "npm run build"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/mock-fs": "^4.13.0",
@@ -28,6 +30,7 @@
   },
   "dependencies": {
     "@rollup/pluginutils": "^4.1.0",
+    "esbuild": "^0.12.18",
     "joycon": "^3.0.1",
     "jsonc-parser": "^3.0.0"
   },

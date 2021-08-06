@@ -181,7 +181,7 @@ export default function pluginFactory(): Plugin {
             : '');
       }
 
-      if (id === appEntryId) return `import "vitext/internal/client/main.js";`;
+      if (id === appEntryId) return `import "vitext/dist/client/main.js";`;
 
       if (id.startsWith(modulePrefix + '_app')) {
         const page = entries.find(({ pageName }) => pageName === '/_app');
@@ -192,12 +192,7 @@ export default function pluginFactory(): Plugin {
           );
           return `export { default } from "${absolutePagePath}"`;
         }
-        return `export { App as default } from "${path.resolve(
-          process.env.VITEXT_TEST
-            ? path.resolve(__dirname, '../..')
-            : __dirname,
-          './app.js'
-        )}"`;
+        return `export { App as default } from "vitext/app"`;
       }
 
       id = resolveHackImport(id);

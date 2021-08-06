@@ -1,10 +1,16 @@
 // Copied from flareact
 import reactRefresh from '@vitejs/plugin-react-refresh';
-import * as glob from 'fast-glob';
+import glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
 import React from 'react';
-import { InlineConfig, resolveConfig, ResolvedConfig, UserConfig, ViteDevServer } from 'vite';
+import {
+  InlineConfig,
+  resolveConfig,
+  ResolvedConfig,
+  UserConfig,
+  ViteDevServer,
+} from 'vite';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
@@ -13,33 +19,32 @@ import { DYNAMIC_PAGE, getEntries } from './route/pages';
 import { Entries, PageFileType } from './types';
 
 export function isObject(value: unknown): value is Record<string, any> {
-  return Object.prototype.toString.call(value) === '[object Object]'
+  return Object.prototype.toString.call(value) === '[object Object]';
 }
 
 export interface Hostname {
   // undefined sets the default behaviour of server.listen
-  host: string | undefined
+  host: string | undefined;
   // resolve to localhost when possible
-  name: string
+  name: string;
 }
-
 
 export function resolveHostname(
   optionsHost: string | boolean | undefined
 ): Hostname {
-  let host: string | undefined
+  let host: string | undefined;
   if (
     optionsHost === undefined ||
     optionsHost === false ||
     optionsHost === 'localhost'
   ) {
     // Use a secure default
-    host = '127.0.0.1'
+    host = '127.0.0.1';
   } else if (optionsHost === true) {
     // If passed --host in the CLI without arguments
-    host = undefined // undefined typically means 0.0.0.0 or :: (listen on all IPs)
+    host = undefined; // undefined typically means 0.0.0.0 or :: (listen on all IPs)
   } else {
-    host = optionsHost
+    host = optionsHost;
   }
 
   // Set host name to localhost when possible, unless the user explicitly asked for '127.0.0.1'
@@ -49,9 +54,9 @@ export function resolveHostname(
     host === '::' ||
     host === undefined
       ? 'localhost'
-      : host
+      : host;
 
-  return { host, name }
+  return { host, name };
 }
 export function extractDynamicParams(source: string, path: string) {
   let test: RegExp | string = source;
@@ -154,7 +159,7 @@ export function resolveHackImport(id: string) {
 export async function getEntryPoints(
   config: UserConfig | ViteDevServer['config']
 ) {
-  return await glob.default('./pages/**/*.+(js|jsx|ts|tsx)', {
+  return await glob('./pages/**/*.+(js|jsx|ts|tsx)', {
     cwd: config.root,
   });
 }

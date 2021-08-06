@@ -20,6 +20,8 @@ export const bundle = async (
   target: string | string[],
   options: Options
 ) => {
+  const [file] = id.split('?')
+  id = file
   const transform = async (inputCode: string, id: string) => {
     let code: string | undefined
     let map: any

@@ -27,7 +27,6 @@ function getEsbuild(inputDir, target) {
     target,
     inject: [path.resolve(__dirname, 'react-shim.js')],
     experimentalBundling: true,
-    tsconfig: path.resolve(inputDir, './tsconfig.json'),
     external,
   });
 }
@@ -66,14 +65,6 @@ function createCommonJSConfig(inputDir, inputFile, output) {
   };
 }
 
-function createNodeConfig(declaration) {
-  if (declaration) {
-    return [
-      // createDeclarationConfig('src/node', 'cli.ts', 'cli.d.ts')
-    ];
-  }
-  return [createCommonJSConfig('src/node', 'cli.ts', 'cli.js')];
-}
 
 function createInternalConfig(declaration) {
   if (declaration) {
@@ -82,7 +73,7 @@ function createInternalConfig(declaration) {
     ];
   }
   return [
-    createESMConfig('src/client', 'main.tsx', 'internal/client/main.js'),
+    createESMConfig('src/client', 'main.tsx', 'dist/client/main.js'),
     // createCommonJSConfig(
     //   'src/node/route',
     //   'worker.ts',
@@ -137,7 +128,6 @@ function createDynamicConfig(declaration) {
 const config = {
   components: createComponentsConfig,
   internal: createInternalConfig,
-  node: createNodeConfig,
   react: createReactConfig,
   dynamic: createDynamicConfig,
 };
@@ -151,7 +141,7 @@ const filesToDelete = [
   'details.json',
   'app.*',
   'cli.*',
-  'internal/**/*',
+  'dist/**/*',
 ];
 
 export default async function (args) {
