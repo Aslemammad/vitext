@@ -4,6 +4,7 @@ import Head from 'vitext/head';
 
 import Component from '../components/Component';
 
+
 const timeout = (n: number) => new Promise((r) => setTimeout(r, n));
 
 const DynamicComponent = dynamic(async () => {

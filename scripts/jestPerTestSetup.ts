@@ -4,8 +4,15 @@ import * as path from 'path';
 import { resolve } from 'path';
 import { ConsoleMessage, Page } from 'playwright-chromium';
 import slash from 'slash';
-import { ViteDevServer, UserConfig, build } from 'vite';
+import {
+  ViteDevServer,
+  UserConfig,
+  build,
+  InlineConfig,
+  ResolvedConfig,
+} from 'vite';
 
+import { preview } from '../packages/vitext/src/node/preview';
 import { createServer } from '../packages/vitext/src/node/server';
 import { resolveInlineConfig } from '../packages/vitext/src/node/utils';
 
@@ -21,7 +28,7 @@ declare global {
 
 const isBuildTest = !!process.env.VITE_TEST_BUILD;
 
-let server: ViteDevServer | http.Server;
+let server: ViteDevServer;
 let tempDir: string;
 let err: Error;
 
@@ -93,17 +100,25 @@ beforeAll(async () => {
       process.env['NODE_ENV'] = 'development';
       if (isBuildTest) {
         process.env['NODE_ENV'] = 'production';
-        const config = await resolveInlineConfig(
+        let config = await resolveInlineConfig(
           { ...options, mode: 'production' },
           'build'
         );
-        await build(config);
+        await build(config as InlineConfig);
+
+        config = (await resolveInlineConfig(
+          { ...options, mode: 'production' },
+          'serve'
+        )) as ResolvedConfig;
+
+        await preview(config, {});
+      } else {
+        server = await createServer({
+          ...options,
+          mode: isBuildTest ? 'production' : 'development',
+        });
+        server = await server.listen();
       }
-      server = await createServer({
-        ...options,
-        mode: isBuildTest ? 'production' : 'development',
-      });
-      server = await server.listen();
 
       const base = server.config.base === '/' ? '' : server.config.base;
       const url =
