@@ -111,7 +111,7 @@ beforeAll(async () => {
           'serve'
         )) as ResolvedConfig;
 
-        await preview(config, {});
+        server = await preview(config, {});
       } else {
         server = await createServer({
           ...options,
