@@ -1,8 +1,15 @@
 document.js
 document.d.ts
 app.js
+app.node.js
 app.d.ts
-cli.js
-cli.d.ts
+dist
+react.js
+react.node.js
+dynamic.js
+dynamic.d.ts
+head.d.ts
+head.js
+yarn-error.log
 ./client
 .rollup.cache
