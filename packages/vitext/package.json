@@ -4,9 +4,12 @@
   "bin": {
     "vitext": "./bin/vitext.js"
   },
+  "files": [
+    "**"
+  ],
   "keywords": [
-    "vite",
     "vitext",
+    "vite",
     "ssg",
     "ssr",
     "react"
