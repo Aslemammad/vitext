@@ -74,7 +74,7 @@ You don't need to wait for HTML exports of your app because Vitext exports pages
 ES modules, Fast compiles and Web workers empower the Vitext SSR/SSG strategy, so you'll have an astonishingly fast SSR/SSG.
 
 ###  ⚡ Fast HMR
-Vitext uses [@vitejs/plugin-react-refresh](https://github.com/vitejs/vite/tree/main/packages/plugin-react-refresh) under the hood, So if you're tired of Nextjs Slow HMR, Vitext HMR is the right place.
+Vitext uses [@vitejs/plugin-react-refresh](https://github.com/vitejs/vite/tree/main/packages/plugin-react-refresh) under the hood, So you have a fast HMR right here.
 
 ###   🔑 Vite & Rollup Compatible
 We can call Vitext a superset of Vite; It means that Vitext supports everything Vite supports with `vitext.config.js`.
