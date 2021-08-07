@@ -86,6 +86,8 @@ export default {
   ...
 };
 ```
+## Examples
+You can checkout [packages/examples](https://github.com/Aslemammad/vitext/tree/master/packages/examples) directory to see examples that have been implemented using vitext.
 
 ## Contribution
 
