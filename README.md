@@ -22,7 +22,7 @@ Vitext (Vite + Next) is a lightning fast SSG/SSR tool that lets you develop bett
 The development server uses native ES modules, So you're going to have your React app server-rendered and client rendered very fast, under a half a second for me.
 
 ###  💥 Suspense support
-You don't have Suspense for your SSR app (Next.js, Gatsby, ...). don't worry, because Vitext supports React Suspense & Lazy out of the box.  
+Vitext supports React Suspense & Lazy out of the box.  
 ```ts
 import { lazy, Suspense } from 'react';
 
@@ -68,7 +68,7 @@ export default IndexPage;
 Vitext uses Vite's building and bundling approach, So it bundles your code in a fast and optimized way.
 
 ###   💎 Build & Export on fly
-You don't need to wait for HTML exports of your app like Next.js SSG because Vitext exports pages to HTML simultaneously while serving your app, So no `next export`.
+You don't need to wait for HTML exports of your app because Vitext exports pages to HTML simultaneously while serving your app, So no `next export`.
  
 ###   🚀 Lightning SSR/SSG
 ES modules, Fast compiles and Web workers empower the Vitext SSR/SSG strategy, so you'll have an astonishingly fast SSR/SSG.
