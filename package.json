@@ -1,6 +1,7 @@
 {
   "private": true,
   "version": "1.0.0",
+  "name": "vitext-monorepo",
   "main": "index.js",
   "license": "MIT",
   "engines": {
@@ -15,19 +16,20 @@
     "postinstall": ""
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.28.5",
-    "@typescript-eslint/parser": "^4.28.5",
-    "eslint": "^7.32.0",
-    "eslint-define-config": "^1.0.9",
-    "eslint-plugin-node": "^11.1.0",
+    "@jest/types": "^26.6.2",
     "@swc/jest": "^0.1.2",
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
     "@types/jest": "^26.0.19",
     "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.34",
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
+    "@typescript-eslint/parser": "^4.28.5",
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.1",
     "esbuild-jest": "^0.5.0",
+    "eslint": "^7.32.0",
+    "eslint-define-config": "^1.0.9",
+    "eslint-plugin-node": "^11.1.0",
     "fs-extra": "^9.1.0",
     "jest": "^26.6.3",
     "lint-staged": "^11.0.0",
@@ -41,20 +43,30 @@
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4",
     "vite": "^2.3.6",
-    "yorkie": "^2.0.0",
-    "@jest/types": "^26.6.2"
+    "yorkie": "^2.0.0"
   },
   "workspaces": {
-    "packages": ["packages/*", "packages/playground/*", "packages/examples/*"]
+    "packages": [
+      "packages/*",
+      "packages/playground/*",
+      "packages/examples/*"
+    ]
   },
   "gitHooks": {
     "pre-commit": "lint-staged",
     "commit-msg": "node scripts/verifyCommit.js"
   },
   "lint-staged": {
-    "*.js,*.jsx": ["prettier --write"],
-    "*.ts,*.tsx": ["eslint", "prettier --parser=typescript --write"],
-    "*.html": ["prettier --write"]
+    "*.js,*.jsx": [
+      "prettier --write"
+    ],
+    "*.ts,*.tsx": [
+      "eslint",
+      "prettier --parser=typescript --write"
+    ],
+    "*.html": [
+      "prettier --write"
+    ]
   },
   "dependencies": {}
 }

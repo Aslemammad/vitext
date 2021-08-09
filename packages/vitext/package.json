@@ -1,6 +1,6 @@
 {
   "name": "vitext",
-  "version": "0.0.2",
+  "version": "0.0.0-development",
   "bin": {
     "vitext": "./bin/vitext.js"
   },
@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aslemammad/vitext.git"
+    "url": "https://github.com/aslemammad/vitext.git"
   },
   "bugs": {
     "url": "https://github.com/aslemammad/vitext/issues"
@@ -39,7 +39,8 @@
     "build": "cross-env-shell NODE_ENV=production \"yarn run build-node && yarn run concurrent-build\"",
     "watch": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-build\"",
     "watch-all": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-dev\"",
-    "dev": "cross-env-shell NODE_ENV=development \"yarn watch-all\""
+    "dev": "cross-env-shell NODE_ENV=development \"yarn watch-all\"",
+    "semantic-release": "semantic-release"
   },
   "peerDependencies": {
     "react": ">=16.8.6",
@@ -111,7 +112,8 @@
     "postcss": "^8.3.6",
     "resolve": "^1.20.0",
     "rollup": "^2.38.5",
-    "vite": "^2.4.2"
+    "vite": "^2.4.2",
+    "semantic-release": "^17.4.4"
   },
   "dependencies": {
     "use-subscription": "^1.5.1",
