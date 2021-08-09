@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "@jest/types": "^26.6.2",
-    "@swc/jest": "^0.1.2",
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
     "@types/jest": "^26.0.19",
     "@types/minimist": "^1.2.1",
@@ -25,7 +24,6 @@
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
     "cross-env": "^7.0.3",
-    "depcheck": "^1.4.1",
     "esbuild-jest": "^0.5.0",
     "eslint": "^7.32.0",
     "eslint-define-config": "^1.0.9",
@@ -53,8 +51,7 @@
     ]
   },
   "gitHooks": {
-    "pre-commit": "lint-staged",
-    "commit-msg": "node scripts/verifyCommit.js"
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.js,*.jsx": [
