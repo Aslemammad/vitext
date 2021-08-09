@@ -16,8 +16,6 @@ jobs:
           node-version: "14.x"
       - run: yarn install --frozen-lockfile
       - run: yarn build 
-      - run: yarn test-serve --runInBand
-      - run: yarn test-build --runInBand
       - run: yarn workspace vitext run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
