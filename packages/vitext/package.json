@@ -7,6 +7,9 @@
   "files": [
     "**"
   ],
+  "engines": {
+    "node": ">=12.0.0"
+  },
   "keywords": [
     "vitext",
     "vite",
@@ -25,7 +28,7 @@
   },
   "homepage": "https://github.com/aslemammad/vitext",
   "scripts": {
-    "node": "NODE_ENV=production rollup -c rollup.config.vite.js",
+    "build-node": "NODE_ENV=production rollup -c rollup.config.vite.js",
     "config:internal": "rollup -c --config-internal",
     "config:components": "rollup -c --config-components",
     "config:react": "rollup -c --config-react",
@@ -33,7 +36,7 @@
     "delete": "rollup -c --config-delete",
     "concurrent-build": "concurrently 'yarn:config:*' 'yarn:config:* --config-declaration'",
     "concurrent-dev": "concurrently 'yarn:config:*' 'yarn:config:* --config-declaration' 'NODE_ENV=development rollup -c rollup.config.vite.js' -w",
-    "build": "cross-env-shell NODE_ENV=production \"yarn concurrent-build\"",
+    "build": "cross-env-shell NODE_ENV=production \"yarn run build-node && yarn run concurrent-build\"",
     "watch": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-build\"",
     "watch-all": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-dev\"",
     "dev": "cross-env-shell NODE_ENV=development \"yarn watch-all\""
@@ -91,7 +94,6 @@
     "mitt": "^2.1.0",
     "prop-types": "^15.7.2",
     "querystring": "^0.2.1",
-    "react-helmet-async": "^1.0.9",
     "react-ssr-prepass": "^1.4.0",
     "read-pkg-up": "^7.0.1",
     "rollup-plugin-delete": "^2.0.0",
@@ -102,7 +104,14 @@
     "terser": "^5.7.1",
     "tiny-invariant": "^1.1.0",
     "tslib": "^2.3.0",
-    "typescript": "^4.3.3"
+    "typescript": "^4.3.3",
+    "use-subscription": "^1.5.1",
+    "react-helmet-async": "^1.0.9",
+    "esbuild": "^0.12.9",
+    "postcss": "^8.3.6",
+    "resolve": "^1.20.0",
+    "rollup": "^2.38.5",
+    "vite": "^2.4.2"
   },
   "dependencies": {
     "use-subscription": "^1.5.1",

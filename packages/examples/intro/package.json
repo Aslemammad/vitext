@@ -14,7 +14,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "three": "^0.131.3",
-    "vitext": "0.0.1"
+    "vitext": "latest"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.3.3",

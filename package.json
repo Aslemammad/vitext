@@ -3,13 +3,23 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
   "scripts": {
     "test": "run-s test-serve test-build",
     "test-serve": "cross-env VITEXT_TEST=1 jest",
     "test-build": "cross-env VITEXT_TEST=1 VITE_TEST_BUILD=1 jest",
+    "lint": "eslint packages/*/{src,types}/**",
+    "build": "yarn workspace rollup-plugin-esbuild build && yarn workspace vitext build",
     "postinstall": ""
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
+    "@typescript-eslint/parser": "^4.28.5",
+    "eslint": "^7.32.0",
+    "eslint-define-config": "^1.0.9",
+    "eslint-plugin-node": "^11.1.0",
     "@swc/jest": "^0.1.2",
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
     "@types/jest": "^26.0.19",
