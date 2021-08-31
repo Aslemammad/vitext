@@ -134,32 +134,84 @@ const createNodeConfig = (isProduction) => {
 /**
  *
  * @param {boolean} isProduction
+ * @param {boolean} types
  * @returns {import('rollup').RollupOptions}
  */
-const createFilesConfig = (isProduction) => {
+const createFilesConfig = (isProduction, types) => {
   /**
    * @type { import('rollup').RollupOptions }
    */
   const filesConfig = {
     input: {
-      react: path.resolve(__dirname, 'src/react/index.tsx'),
       app: path.resolve(__dirname, 'src/node/components/_app.tsx'),
       document: path.resolve(__dirname, 'src/node/components/_document.tsx'),
+      head: path.resolve(__dirname, 'src/node/components/Head.tsx'),
       dynamic: path.resolve(__dirname, 'src/react/dynamic.tsx'),
     },
     plugins: [
-      typescript({
-        target: 'es2018',
-        types: ['vite/client'],
-        jsx: 'react',
-        sourceMap: false,
-      }),
-      dts(),
+      // @ts-ignore
+      types
+        ? {}
+        : typescript({
+            target: 'es2018',
+            types: ['vite/client'],
+            jsx: 'react',
+            sourceMap: false,
+            module: 'es2020',
+          }),
+      // @ts-ignore
+      types ? dts() : {},
     ],
     external,
     output: {
       dir: path.resolve(__dirname),
       format: 'esm',
+      sourcemap: false,
+    },
+  };
+  return filesConfig;
+};
+
+/**
+ *
+ * @param {boolean} isProduction
+ * @param {boolean} cjs
+ * @returns {import('rollup').RollupOptions}
+ */
+const createReactConfig = (isProduction, cjs) => {
+  /**
+   * @type { import('rollup').RollupOptions }
+   */
+  const filesConfig = {
+    input: {
+      [cjs ? 'react.node' : 'react']: path.resolve(
+        __dirname,
+        'src/react/index.tsx'
+      ),
+    },
+    plugins: [
+      // @ts-ignore
+      cjs
+        ? typescript({
+            target: 'es2018',
+            types: ['vite/client'],
+            jsx: 'react',
+            sourceMap: false,
+            module: 'commonjs',
+          })
+        : typescript({
+            target: 'es2018',
+            types: ['vite/client'],
+            jsx: 'react',
+            sourceMap: false,
+            module: 'es2020',
+          }),
+      // @ts-ignore
+    ],
+    external,
+    output: {
+      dir: path.resolve(__dirname),
+      format: cjs ? 'cjs' : 'esm',
       sourcemap: false,
     },
   };
@@ -198,7 +250,10 @@ export default (commandLineArgs) => {
 
   return [
     createNodeConfig(isProduction),
-    createFilesConfig(isProduction),
+    createFilesConfig(isProduction, false),
+    createFilesConfig(isProduction, true),
     createClientConfig(isProduction),
+    createReactConfig(isProduction, false),
+    createReactConfig(isProduction, true),
   ];
 };
