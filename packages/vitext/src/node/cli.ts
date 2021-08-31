@@ -1,15 +1,6 @@
 import cac from 'cac';
 import chalk from 'chalk';
-import {
-  build,
-  BuildOptions,
-  createLogger,
-  InlineConfig,
-  LogLevel,
-  optimizeDeps,
-  ResolvedConfig,
-  ServerOptions,
-} from 'vite';
+import Vite from 'vite';
 
 import * as utils from './utils';
 
@@ -32,8 +23,8 @@ interface GlobalCLIOptions {
   r?: string;
   mode?: string;
   m?: string;
-  logLevel?: LogLevel;
-  l?: LogLevel;
+  logLevel?: Vite.LogLevel;
+  l?: Vite.LogLevel;
   clearScreen?: boolean;
 }
 
@@ -88,7 +79,7 @@ cli
   .action(
     async (
       root: string = process.cwd(),
-      options: ServerOptions & GlobalCLIOptions
+      options: Vite.ServerOptions & GlobalCLIOptions
     ) => {
       const { createServer } = await import('./server');
       try {
@@ -100,11 +91,11 @@ cli
           configFile: options.config,
           logLevel: options.logLevel,
           clearScreen: options.clearScreen,
-          server: cleanOptions(options) as ServerOptions,
+          server: cleanOptions(options) as Vite.ServerOptions,
         });
         server.listen();
       } catch (e) {
-        createLogger(options.logLevel).error(
+        Vite.createLogger(options.logLevel).error(
           chalk.red(`error when starting dev server:\n${e.stack}`)
         );
         process.exit(1);
@@ -149,9 +140,9 @@ cli
   .action(
     async (
       root: string = process.cwd(),
-      options: BuildOptions & GlobalCLIOptions
+      options: Vite.BuildOptions & GlobalCLIOptions
     ) => {
-      const buildOptions = cleanOptions(options) as BuildOptions;
+      const buildOptions = cleanOptions(options) as Vite.BuildOptions;
 
       process.env['NODE_ENV'] = options.mode || 'production';
 
@@ -167,11 +158,11 @@ cli
             build: buildOptions,
           },
           'build'
-        )) as InlineConfig;
+        )) as Vite.InlineConfig;
         // await optimizeDeps(config as unknown as ResolvedConfig, true, true);
-        await build(config);
+        await Vite.build(config);
       } catch (e) {
-        createLogger(options.logLevel).error(
+        Vite.createLogger(options.logLevel).error(
           chalk.red(`error during build:\n${e.stack}`)
         );
         process.exit(1);
@@ -199,10 +190,10 @@ cli
             logLevel: options.logLevel,
           },
           'build'
-        )) as ResolvedConfig;
-        await optimizeDeps(config, options.force, true);
+        )) as Vite.ResolvedConfig;
+        await Vite.optimizeDeps(config, options.force, true);
       } catch (e) {
-        createLogger(options.logLevel).error(
+        Vite.createLogger(options.logLevel).error(
           chalk.red(`error when optimizing deps:\n${e.stack}`)
         );
         process.exit(1);
@@ -245,7 +236,7 @@ cli
             },
           },
           'serve'
-        )) as ResolvedConfig;
+        )) as Vite.ResolvedConfig;
 
         await preview(
           config,
@@ -255,7 +246,7 @@ cli
           }
         );
       } catch (e) {
-        createLogger(options.logLevel).error(
+        Vite.createLogger(options.logLevel).error(
           chalk.red(`error when starting preview server:\n${e.stack}`)
         );
         process.exit(1);

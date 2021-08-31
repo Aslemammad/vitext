@@ -4,13 +4,7 @@ import fs from 'fs';
 import { Server as HttpServer } from 'http';
 import { ServerOptions as HttpsServerOptions } from 'https';
 import path from 'path';
-import {
-  Connect,
-  Logger,
-  ResolvedConfig,
-  ServerOptions,
-  ViteDevServer,
-} from 'vite';
+import Vite from 'vite';
 
 import { proxyMiddleware } from './proxy';
 import { createServer } from './server';
@@ -104,7 +98,7 @@ async function createCertificate() {
   });
   return pems.private + pems.cert;
 }
-async function getCertificate(config: ResolvedConfig) {
+async function getCertificate(config: Vite.ResolvedConfig) {
   if (!config.cacheDir) return await createCertificate();
 
   const cachePath = path.join(config.cacheDir, '_cert.pem');
@@ -130,7 +124,7 @@ async function getCertificate(config: ResolvedConfig) {
   }
 }
 export async function resolveHttpsConfig(
-  config: ResolvedConfig
+  config: Vite.ResolvedConfig
 ): Promise<HttpsServerOptions | undefined> {
   if (!config.server.https) return undefined;
 
@@ -149,8 +143,8 @@ export async function resolveHttpsConfig(
   return httpsOption;
 }
 export async function resolveHttpServer(
-  { proxy }: ServerOptions,
-  app: Connect.Server,
+  { proxy }: Vite.ServerOptions,
+  app: Vite.Connect.Server,
   httpsOptions?: HttpsServerOptions
 ): Promise<HttpServer> {
   if (!httpsOptions) {
@@ -176,7 +170,7 @@ export async function httpServerStart(
     port: number;
     strictPort: boolean | undefined;
     host: string | undefined;
-    logger: Logger;
+    logger: Vite.Logger;
   }
 ): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -207,9 +201,9 @@ export async function httpServerStart(
 }
 
 export async function preview(
-  config: ResolvedConfig,
+  config: Vite.ResolvedConfig,
   serverOptions: { host?: string; port?: number } = {}
-): Promise<ViteDevServer> {
+): Promise<Vite.ViteDevServer> {
   const vitext = await createServer({
     ...config,
     server: { ...config.server, ...serverOptions, middlewareMode: null },

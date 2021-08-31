@@ -4,13 +4,7 @@ import glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as React from 'react';
-import {
-  InlineConfig,
-  resolveConfig,
-  ResolvedConfig,
-  UserConfig,
-  ViteDevServer,
-} from 'vite';
+import Vite from 'vite';
 
 import { App as BaseApp, AppType } from './components/_app';
 import { Document as BaseDocument, DocumentType } from './components/_document';
@@ -116,7 +110,7 @@ export async function resolveCustomComponents({
   server,
 }: {
   entries: ReturnType<typeof getEntries>;
-  server: ViteDevServer;
+  server: Vite.ViteDevServer;
 }) {
   const customApp = entries.find((page) => page.pageName === '/_app');
   const customDocument = entries.find((page) => page.pageName === '/_document');
@@ -157,7 +151,7 @@ export function resolveHackImport(id: string) {
 }
 
 export async function getEntryPoints(
-  config: UserConfig | ViteDevServer['config']
+  config: Vite.UserConfig | Vite.ViteDevServer['config']
 ) {
   return await glob('./pages/**/*.+(js|jsx|ts|tsx)', {
     cwd: config.root,
@@ -170,14 +164,14 @@ const returnConfigFiles = (root: string) =>
   );
 
 export async function resolveInlineConfig(
-  options: InlineConfig & UserConfig & { root: string },
+  options: Vite.InlineConfig & Vite.UserConfig & { root: string },
   command: 'build' | 'serve'
-): Promise<InlineConfig | ResolvedConfig> {
+): Promise<Vite.InlineConfig | Vite.ResolvedConfig> {
   const configFile: string =
     returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
     './vitext.config.js';
 
-  const config = await resolveConfig({ ...options, configFile }, command);
+  const config = await Vite.resolveConfig({ ...options, configFile }, command);
 
   if (command === 'build') {
     // @ts-ignore vite#issues#4016#4096
@@ -208,7 +202,7 @@ export async function loadPage({
   entries,
   page,
 }: {
-  server: ViteDevServer;
+  server: Vite.ViteDevServer;
   entries: Entries;
   page: Entries[number];
 }) {
