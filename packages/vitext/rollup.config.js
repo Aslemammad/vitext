@@ -165,6 +165,7 @@ const createFilesConfig = (isProduction, types) => {
     external,
     output: {
       dir: path.resolve(__dirname),
+
       format: 'esm',
       sourcemap: false,
     },
@@ -211,6 +212,7 @@ const createReactConfig = (isProduction, cjs) => {
     external,
     output: {
       dir: path.resolve(__dirname),
+      entryFileNames: `[name].${cjs ? 'cjs' : 'js'}`,
       format: cjs ? 'cjs' : 'esm',
       sourcemap: false,
     },

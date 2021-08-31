@@ -1,8 +1,6 @@
 import React, { Component, createContext, useContext } from 'react';
 import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async';
 
-// import { htmlEscapeJsonString } from '../utils';
-
 type DocumentProps = {
   Component: React.ComponentType<any>;
   pageClientPath: string;

@@ -3,7 +3,7 @@ import reactRefresh from '@vitejs/plugin-react-refresh';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
-import React from 'react';
+import * as React from 'react';
 import {
   InlineConfig,
   resolveConfig,

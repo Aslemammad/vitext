@@ -1,6 +1,7 @@
 {
   "name": "vitext",
   "version": "0.0.2",
+  "type": "module",
   "bin": {
     "vitext": "./bin/vitext.js"
   },

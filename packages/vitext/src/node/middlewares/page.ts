@@ -81,6 +81,7 @@ export async function createPageMiddleware({
         html = await renderToHTML({
           server,
           entries,
+          manifest,
           pageEntry: page.pageEntry,
           pagesModuleId,
           props: data?.props,
@@ -88,7 +89,6 @@ export async function createPageMiddleware({
           Component: pageFile.default,
           Document: customComponents.Document!,
           App: customComponents.App!,
-          manifest
         });
       }
 

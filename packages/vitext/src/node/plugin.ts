@@ -84,9 +84,9 @@ export default function pluginFactory(): Plugin {
           external: [
             'prop-types',
             'react-helmet-async',
-            'vitext/document',
+            // 'vitext/document',
             'use-subscription',
-            'vitext/react.node',
+            'vitext/react.node.cjs',
             'vitext/app.node',
           ],
         },
@@ -96,7 +96,7 @@ export default function pluginFactory(): Plugin {
             'react/index',
             'react-dom',
             'use-subscription',
-            'vitext/react.node',
+            // 'vitext/react.node',
             'vitext/react',
             'vitext/document',
             'vitext/app',
@@ -159,6 +159,10 @@ export default function pluginFactory(): Plugin {
     },
     resolveId(id) {
       if (id.startsWith('.' + modulePrefix)) id = id.slice(1);
+
+      if (id.includes(modulePrefix + '_app')) {
+        return modulePrefix + '_app'
+      }
 
       return id;
     },
@@ -240,8 +244,7 @@ export function dependencyInjector(): Plugin {
       for (let index = 0; index < imports.length; index++) {
         const { s: start, e: end } = imports[index];
         const url = source.slice(start, end);
-        // console.log('here', url, id)
-        s.overwrite(start, end, url === 'react' ? 'vitext/react.node' : url);
+        s.overwrite(start, end, url === 'react' ? 'vitext/react.node.cjs' : url);
       }
 
       return {
