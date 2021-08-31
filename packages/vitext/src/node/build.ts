@@ -50,7 +50,7 @@ export function build(): Plugin {
   };
 }
 
-let assetsBundle: OutputBundle = {};
+const assetsBundle: OutputBundle = {};
 
 export function getAssets(): Plugin {
   return {

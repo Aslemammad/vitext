@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
+// eslint-disable-next-line
 import App from '/@vitext/_app';
 
 const root = document.getElementById('root');

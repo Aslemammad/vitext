@@ -13,9 +13,7 @@ import {
 
 import * as utils from './utils';
 
-
-
-
+// eslint-disable-next-line
 console.log(chalk.cyan(`vitext v${require('vitext/package.json').version}`));
 
 const cli = cac('vitext');
@@ -266,6 +264,7 @@ cli
   );
 
 cli.help();
+// eslint-disable-next-line
 cli.version(require('vitext/package.json').version);
 
 cli.parse();

@@ -26,7 +26,7 @@ export function resolvePagePath(pagePath: string, entries: Entries) {
     };
   });
 
-  let page = pagesMap.find((p) => p.route.re.test(pagePath));
+  const page = pagesMap.find((p) => p.route.re.test(pagePath));
 
   if (!page) return;
   if (!Object.keys(page.route.groups).length) return page;
@@ -43,7 +43,7 @@ export function getEntries(
 ) {
   const prefix = mode === 'development' ? './pages' : 'pages';
 
-  let entries: {
+  const entries: {
     absolutePagePath: string;
     pageName: string;
     manifestAddress?: string;
@@ -137,7 +137,7 @@ export function getRouteRegex(normalizedRoute: string): {
 
   const routeKeys: { [named: string]: string } = {};
 
-  let namedParameterizedRoute = segments
+  const namedParameterizedRoute = segments
     .map((segment) => {
       if (segment.startsWith('[') && segment.endsWith(']')) {
         const { key, optional, repeat } = parseParameter(segment.slice(1, -1));

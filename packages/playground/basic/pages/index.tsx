@@ -1,6 +1,6 @@
-import { useEffect, useState, Suspense, lazy } from 'react';
 import dynamic from 'vitext/dynamic';
 import Head from 'vitext/head';
+import * as React from 'react';
 
 import Component from '../components/Component';
 
@@ -16,14 +16,14 @@ const DynamicComponentNoServer = dynamic(
   },
   { server: false }
 );
-const LazyComponent = lazy(async () => {
+const LazyComponent = React.lazy(async () => {
   return import('../components/Component');
 });
 
 const IndexPage = () => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [count, setCount] = useState(0);
-  useEffect(() => {
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [count, setCount] = React.useState(0);
+  React.useEffect(() => {
     timeout(200).then(() => setIsMounted(true));
   }, []);
 
@@ -47,9 +47,9 @@ const IndexPage = () => {
         <DynamicComponentNoServer fallback="loading" />
       </div>
       <div id="suspense-test">
-        <Suspense fallback="loading">
+        <React.Suspense fallback="loading">
           <LazyComponent />
-        </Suspense>
+        </React.Suspense>
       </div>
       <div id="suspense-test">{count}</div>
       <button onClick={() => setCount((prevCount) => prevCount + 1)}>

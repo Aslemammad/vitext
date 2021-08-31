@@ -21,7 +21,7 @@ export async function fetchData({
   page: PageType;
   isExporting: boolean;
 }) {
-  const query = querystring.parse(req?.originalUrl!);
+  const query = querystring.parse(req?.originalUrl);
 
   let params: querystring.ParsedUrlQuery | undefined = page.params;
 
@@ -39,7 +39,7 @@ export async function fetchData({
   }
 
   if ('getProps' in pageFile) {
-    let getPropsResult = await fetchProps({
+    const getPropsResult = await fetchProps({
       req,
       res,
       query,
@@ -54,6 +54,7 @@ export async function fetchData({
     }
 
     if (getPropsResult.revalidate) {
+      // TODO
     }
     return getPropsResult;
   }

@@ -1,6 +1,15 @@
-import * as React from 'react';
+import * as React from 'react/index';
 
-import SuspenseServer from './Suspense';
+type Props = {
+  progressive?: boolean;
+  server?: boolean;
+};
+
+const SuspenseServer: React.ComponentType<React.SuspenseProps & Props> = ({
+  fallback,
+  }) => {
+  return <>{fallback}</>
+};
 
 const isServerSide = typeof window === 'undefined';
 
@@ -67,6 +76,7 @@ export {
   version,
   lazy,
   Suspense,
-  injectedReact as default 
 };
+
+export default injectedReact
 

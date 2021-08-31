@@ -1,26 +1,21 @@
-import chalk from 'chalk';
 import compression from 'compression';
-import connect from 'connect';
 import corsMiddleware from 'cors';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import { Server as HttpServer } from 'http';
 import { ServerOptions as HttpsServerOptions } from 'https';
-import os from 'os';
 import path from 'path';
 import {
   Connect,
-  InlineConfig,
   Logger,
   ResolvedConfig,
   ServerOptions,
-  UserConfig,
   ViteDevServer,
 } from 'vite';
 
 import { proxyMiddleware } from './proxy';
 import { createServer } from './server';
-import { Hostname, isObject, resolveHostname } from './utils';
+import { isObject } from './utils';
 
 export function readFileIfExists(value?: string | Buffer | any[]) {
   if (typeof value === 'string') {

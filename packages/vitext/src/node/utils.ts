@@ -60,8 +60,8 @@ export function resolveHostname(
 }
 export function extractDynamicParams(source: string, path: string) {
   let test: RegExp | string = source;
-  let parts = [];
-  let params: Record<string, string> = {};
+  const parts = [];
+  const params: Record<string, string> = {};
 
   for (const match of source.matchAll(/\[(\w+)\]/g)) {
     parts.push(match[1]);
@@ -173,7 +173,7 @@ export async function resolveInlineConfig(
   options: InlineConfig & UserConfig & { root: string },
   command: 'build' | 'serve'
 ): Promise<InlineConfig | ResolvedConfig> {
-  let configFile: string =
+  const configFile: string =
     returnConfigFiles(options.root).find((file) => fs.existsSync(file)) ||
     './vitext.config.js';
 

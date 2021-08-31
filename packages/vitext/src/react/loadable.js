@@ -21,7 +21,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 // https://github.com/jamiebuilds/react-loadable/blob/v5.5.0/src/index.js
 // Modified to be compatible with webpack 4 / Next.js
 // @ts-check
-import * as React from 'react';
+import * as React from 'react/index';
 import { useSubscription } from 'use-subscription';
 
 export const LoadableContext = React.createContext(null);
@@ -34,9 +34,9 @@ const READY_INITIALIZERS = globalThis.READY_INITIALIZERS;
 let initialized = false;
 
 function load(loader) {
-  let promise = loader();
+  const promise = loader();
 
-  let state = {
+  const state = {
     loading: true,
     loaded: null,
     error: null,
@@ -73,7 +73,7 @@ function createLoadableComponent(loadFn, options) {
 
   Object.keys((key) => (options[key] = options[key] ?? defaultOpts[key]));
 
-  let opts = options;
+  const opts = options;
   // let opts = Object.assign(
   //   {
   //     delay: 200,
@@ -253,10 +253,10 @@ function Loadable(opts) {
 }
 
 function flushInitializers(initializers, ids) {
-  let promises = [];
+  const promises = [];
 
   while (initializers.length) {
-    let init = initializers.pop();
+    const init = initializers.pop();
     promises.push(init(ids));
   }
 

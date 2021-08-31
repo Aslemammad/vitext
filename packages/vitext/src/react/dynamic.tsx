@@ -22,10 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 // Modified to be compatible with vitext
-import * as React from 'react';
-import type { CommonOptions } from 'react-loadable';
-
-import Loadable from './loadable';
+import * as React from 'react/index';
+// eslint-disable-next-line
+import Loadable, { CommonOptions } from 'vitext/src/react/loadable';
 
 const isServerSide = typeof window === 'undefined';
 
@@ -53,13 +52,13 @@ export type LoadableFn<P> = (opts: LoadableOptions<P>) => P;
 export type LoadableComponent<P> = P;
 
 type Props<P> = P & {
-    fallback: string | LoadableOptions<any>['loading'] | JSX.Element;
-  }
+  fallback: string | LoadableOptions<any>['loading'] | JSX.Element;
+};
 function createDynamicComponent<P>(
   loadableOptions: LoadableOptions<React.ComponentType<P>>,
   opts: { server: boolean }
 ): React.ComponentType<Props<P>> {
-  let loadableFn: LoadableFn<React.ComponentType<P>> = Loadable;
+  const loadableFn: LoadableFn<React.ComponentType<P>> = Loadable;
   const ResultComponent: React.ComponentType<any> = loadableFn(loadableOptions);
 
   // Todo please clean this, that's total trash, to get ready for the release
@@ -74,7 +73,7 @@ function createDynamicComponent<P>(
     ...props
   }: P & {
     fallback: string | LoadableOptions<any>['loading'] | JSX.Element;
-    })  => {
+  }) => {
     loadableOptions.loading =
       typeof props.fallback === 'function'
         ? props.fallback
@@ -88,7 +87,7 @@ function createDynamicComponent<P>(
       );
     }
     return <ResultComponent {...props} />;
-  }
+  };
 
   return DynamicComponent;
 }
@@ -96,8 +95,8 @@ function createDynamicComponent<P>(
 export default function dynamic<P>(
   loader: Loader<React.ComponentType<P>>,
   opts: { server: boolean } = { server: true }
-) {
-  let loadableOptions: LoadableOptions<React.ComponentType<P>> = {
+): React.ComponentType<Props<P>> {
+  const loadableOptions: LoadableOptions<React.ComponentType<P>> = {
     delay: 400,
   };
 
