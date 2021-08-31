@@ -15,6 +15,7 @@ const externalDeps = [
   'react/index',
   'react-dom',
   'react-dom/server',
+  'react-dom/server.js',
   'react-helmet-async',
   'use-subscription',
 ];
@@ -108,7 +109,6 @@ const createNodeConfig = (isProduction) => {
         : Object.keys(require('./package.json').devDependencies)),
     ],
     plugins: [
-      nodeResolve({ preferBuiltins: true }),
       typescript({
         target: 'es2019',
         include: ['src/node/**/*.ts', 'src/node/**/*.tsx'],
@@ -116,6 +116,7 @@ const createNodeConfig = (isProduction) => {
         tsconfig: path.resolve(__dirname, 'src/node/tsconfig.json'),
         sourceMap: false,
       }),
+      nodeResolve({ preferBuiltins: true }),
       // Some deps have try...catch require of optional deps, but rollup will
       // generate code that force require them upfront for side effects.
       // Shim them with eval() so rollup can skip these calls.
