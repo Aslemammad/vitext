@@ -1,7 +1,6 @@
 import compression from 'compression';
 import corsMiddleware from 'cors';
 import fs from 'fs';
-import fsp from 'fs/promises';
 import { Server as HttpServer } from 'http';
 import { ServerOptions as HttpsServerOptions } from 'https';
 import path from 'path';
@@ -16,6 +15,8 @@ import {
 import { proxyMiddleware } from './proxy';
 import { createServer } from './server';
 import { isObject } from './utils';
+
+const fsp = fs.promises
 
 export function readFileIfExists(value?: string | Buffer | any[]) {
   if (typeof value === 'string') {
