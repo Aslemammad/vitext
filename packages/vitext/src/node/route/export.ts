@@ -1,8 +1,7 @@
 import { Mutex, MutexInterface } from 'async-mutex';
 import chalk from 'chalk';
 import isEqual from 'deep-equal';
-import * as fs from 'fs';
-import { mkdirp } from 'fs-extra';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ParsedUrlQuery } from 'querystring';
 import { Manifest, ViteDevServer } from 'vite';
@@ -117,7 +116,7 @@ export async function exportPage({
     });
     const manifestAddress = path.join(dir, 'manifest.json');
 
-    await mkdirp(path.dirname(manifestAddress));
+    await fs.mkdirp(path.dirname(manifestAddress));
     await fs.promises.writeFile(manifestAddress, JSON.stringify([]));
 
     exportManifest.forEach(async (filePromise, id) => {

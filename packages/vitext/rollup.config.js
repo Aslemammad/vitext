@@ -43,7 +43,7 @@ const sharedNodeOptions = {
     format: 'esm',
     externalLiveBindings: false,
     freeze: false,
-    sourcemap: false,
+    sourcemap: false
   },
   external,
   onwarn(warning, warn) {
@@ -121,11 +121,12 @@ const createNodeConfig = (isProduction) => {
       // generate code that force require them upfront for side effects.
       // Shim them with eval() so rollup can skip these calls.
       commonjs({
-        requireReturnsDefault: false,
+        // requireReturnsDefault: true,
         extensions: ['.js'],
         // Optional peer deps of ws. Native deps that are mostly for performance.
         // Since ws is not that perf critical for us, just ignore these deps.
         ignore: ['bufferutil', 'utf-8-validate'],
+        // esmExternals:false
       }),
       json(),
       createRequire(),
