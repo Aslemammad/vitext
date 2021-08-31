@@ -2,26 +2,24 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
-// eslint-disable-next-line
-import App from '/@vitext/_app';
-
 const root = document.getElementById('root');
 const initialData = document.getElementById('__DATA')?.textContent;
 window.__DATA = initialData ? JSON.parse(initialData!) : undefined;
 
-(function () {
+(async function () {
   if (!window.__DATA) {
     return;
   }
 
-  const ComponentPromise = import(
-    `./@vitext/hack-import${window.__DATA.pageClientPath}.js`
-  );
+  // @ts-ignore
+  const App = (await import('./@vitext/_app')).default;
 
   async function render() {
     const props = window.__DATA.props[window.__DATA.pageClientPath];
 
-    const Component = (await ComponentPromise).default;
+    const Component = (
+      await import(`./@vitext/hack-import${window.__DATA.pageClientPath}.js`)
+    ).default;
 
     const element = (
       <HelmetProvider>

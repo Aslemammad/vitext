@@ -1,5 +1,6 @@
 import React, { Component, createContext, useContext } from 'react';
-import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async';
+// @ts-ignore
+import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async/lib/index.modern.js';
 
 type DocumentProps = {
   Component: React.ComponentType<any>;

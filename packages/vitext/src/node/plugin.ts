@@ -167,7 +167,6 @@ export default function pluginFactory(): Plugin {
     },
 
     async load(id) {
-      console.log(id)
       if (id === currentPageModuleId) {
         id =
           pagesModuleId +
