@@ -21,10 +21,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 // https://github.com/jamiebuilds/react-loadable/blob/v5.5.0/src/index.js
 // Modified to be compatible with webpack 4 / Next.js
 // @ts-check
-import * as React from 'react';
+import React from 'react';
 import useSubscriptionDefault from 'use-subscription';
-
-const { useSubscription } = useSubscriptionDefault;
 
 export const LoadableContext = React.createContext(null);
 
@@ -125,7 +123,7 @@ function createLoadableComponent(loadFn, options) {
     init();
 
     const context = React.useContext(LoadableContext);
-    const state = useSubscription(subscription);
+    const state = useSubscriptionDefault.useSubscription(subscription);
 
     React.useImperativeHandle(
       ref,

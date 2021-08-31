@@ -17,9 +17,11 @@ const externalDeps = [
   'react-dom/server',
   'react-dom/server.js',
   'react-helmet-async',
+  'react-helmet-async/lib/index.js',
+  'react-helmet-async/lib/index.modern.js',
   'use-subscription',
-  'vitext/app',
-  'vitext/document',
+  'vitext/app.js',
+  'vitext/document.js',
 ];
 
 function external(id) {

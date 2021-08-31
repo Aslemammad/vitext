@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as React from 'react';
+import React from 'react';
 import ReactDOMServer from 'react-dom/server.js';
 import { Manifest, ModuleNode, ViteDevServer } from 'vite';
 

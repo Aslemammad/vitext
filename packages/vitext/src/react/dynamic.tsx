@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 // Modified to be compatible with vitext
-import * as React from 'react';
+import React from 'react';
 // eslint-disable-next-line
 import Loadable, { CommonOptions } from 'vitext/src/react/loadable';
 

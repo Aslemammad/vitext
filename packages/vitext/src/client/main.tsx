@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import * as ReactDOM from 'react-dom';
 // @ts-ignore
 import { HelmetProvider } from 'react-helmet-async/lib/index.modern.js';

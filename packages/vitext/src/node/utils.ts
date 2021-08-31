@@ -3,11 +3,11 @@ import reactRefresh from '@vitejs/plugin-react-refresh';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as React from 'react';
+import React from 'react';
 import Vite from 'vite';
+import { App as BaseApp, AppType } from 'vitext/app.js';
+import { Document as BaseDocument, DocumentType } from 'vitext/document.js';
 
-import { App as BaseApp, AppType } from './components/_app';
-import { Document as BaseDocument, DocumentType } from './components/_document';
 import { createVitextPlugin } from './plugin';
 import { DYNAMIC_PAGE, getEntries } from './route/pages';
 import { Entries, PageFileType } from './types';

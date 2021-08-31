@@ -1,4 +1,4 @@
-import * as React from 'react/index';
+import React from 'react/index';
 
 type Props = {
   progressive?: boolean;
