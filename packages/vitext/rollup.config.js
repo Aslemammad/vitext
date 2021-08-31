@@ -12,7 +12,9 @@ import * as pkg from './package.json';
 const externalDeps = [
   '/@vitext/_app',
   'react',
+  'react/index',
   'react-dom',
+  'react-dom/server',
   'react-helmet-async',
   'use-subscription',
 ];
@@ -98,6 +100,7 @@ const createNodeConfig = (isProduction) => {
     },
     external: [
       'fsevents',
+      ...externalDeps,
       ...Object.keys(require('./package.json').dependencies),
       ...Object.keys(require('./package.json').peerDependencies),
       ...(isProduction
