@@ -22,7 +22,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE
 // Modified to be compatible with webpack 4 / Next.js
 // @ts-check
 import * as React from 'react';
-import { useSubscription } from 'use-subscription';
+import useSubscriptionDefault from 'use-subscription';
+
+const { useSubscription } = useSubscriptionDefault;
 
 export const LoadableContext = React.createContext(null);
 
@@ -269,7 +271,10 @@ function flushInitializers(initializers, ids) {
 
 Loadable.preloadAll = () => {
   return new Promise((resolveInitializers, reject) => {
-    flushInitializers(globalThis.ALL_INITIALIZERS).then(resolveInitializers, reject);
+    flushInitializers(globalThis.ALL_INITIALIZERS).then(
+      resolveInitializers,
+      reject
+    );
   });
 };
 

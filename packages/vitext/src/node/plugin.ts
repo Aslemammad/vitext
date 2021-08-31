@@ -1,5 +1,5 @@
 import { init, parse } from 'es-module-lexer';
-import { Loader, transform } from 'esbuild';
+import Esbuild from 'esbuild';
 import * as fs from 'fs';
 import MagicString from 'magic-string';
 import * as path from 'path';
@@ -101,6 +101,7 @@ export default function pluginFactory(): Plugin {
             'vitext/head',
             'vitext/dynamic',
             'react-helmet-async',
+            'react-helmet-async/lib/index.modern.js'
           ],
         },
         esbuild: {
@@ -235,7 +236,7 @@ export function dependencyInjector(): Plugin {
 
       await init;
       const source = (
-        await transform(code, { loader: ext as Loader, jsx: 'transform' })
+        await Esbuild.transform(code, { loader: ext as Esbuild.Loader, jsx: 'transform' })
       ).code;
 
       const imports = parse(source)[0];

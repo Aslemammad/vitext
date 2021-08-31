@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { HelmetProvider } from 'react-helmet-async';
+// @ts-ignore
+import { HelmetProvider } from 'react-helmet-async/lib/index.modern.js';
 
 const root = document.getElementById('root');
 const initialData = document.getElementById('__DATA')?.textContent;
