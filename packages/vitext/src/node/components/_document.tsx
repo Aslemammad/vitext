@@ -7,7 +7,6 @@ type DocumentProps = {
   pageClientPath: string;
   props: any; // fetched data
 };
-
 const DocumentContext = React.createContext<DocumentProps>(null as any);
 
 export class Document extends React.Component {
