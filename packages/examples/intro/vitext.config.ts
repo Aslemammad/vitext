@@ -17,4 +17,7 @@ export default {
 
     ],
   },
+  build: {
+    watch: null,
+  },
 } as UserConfig;

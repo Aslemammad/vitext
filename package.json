@@ -12,7 +12,7 @@
     "test-serve": "cross-env VITEXT_TEST=1 jest",
     "test-build": "cross-env VITEXT_TEST=1 VITE_TEST_BUILD=1 jest",
     "lint": "eslint packages/*/{src,types}/**",
-    "build": "yarn workspace rollup-plugin-esbuild build && yarn workspace vitext build",
+    "build": "yarn workspace vitext build",
     "postinstall": ""
   },
   "devDependencies": {

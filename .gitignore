@@ -7,3 +7,8 @@ temp
 .yarn 
 workspace.code-workspace
 TODO.md
+
+packages/vitext/react.d.ts
+packages/vitext/src/node/error.ts
+.vimspector.json
+core

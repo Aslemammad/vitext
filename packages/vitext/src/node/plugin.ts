@@ -1,5 +1,5 @@
 import { init, parse } from 'es-module-lexer';
-import { Loader, transform } from 'esbuild';
+import Esbuild from 'esbuild';
 import * as fs from 'fs';
 import MagicString from 'magic-string';
 import * as path from 'path';
@@ -33,15 +33,13 @@ const currentPageModuleId = modulePrefix + 'current-page';
 
 export default function pluginFactory(): Plugin {
   let resolvedConfig: ResolvedConfig | UserConfig;
-  let currentPage: PageType = {} as PageType;
-  let manifest: Manifest = {};
+  const currentPage: PageType = {} as PageType;
+  const manifest: Manifest = {};
   let resolvedEnv: ConfigEnv;
 
   let server: ViteDevServer;
   let entries: Entries;
   let clearEntries: Entries;
-
-  init;
 
   return {
     name: 'vitext',
@@ -86,24 +84,24 @@ export default function pluginFactory(): Plugin {
           external: [
             'prop-types',
             'react-helmet-async',
-            'vitext/document',
             'use-subscription',
-            'vitext/react.node',
+            'vitext/react.node.cjs',
             'vitext/app.node',
           ],
         },
         optimizeDeps: {
           include: [
             'react',
+            'react/index',
             'react-dom',
             'use-subscription',
             'vitext/react',
             'vitext/document',
             'vitext/app',
             'vitext/head',
-            'vitext/react',
-            'vitext/react.node',
+            'vitext/dynamic',
             'react-helmet-async',
+            'react-helmet-async/lib/index.modern.js'
           ],
         },
         esbuild: {
@@ -138,7 +136,7 @@ export default function pluginFactory(): Plugin {
 
       return async () => {
         server.middlewares.use(pageMiddleware);
-        let customComponents = await resolveCustomComponents({
+        const customComponents = await resolveCustomComponents({
           entries,
           server,
         });
@@ -162,13 +160,10 @@ export default function pluginFactory(): Plugin {
     resolveId(id) {
       if (id.startsWith('.' + modulePrefix)) id = id.slice(1);
 
-      if (id === appEntryId) return id;
-
-      if (id.startsWith(pagesModuleId)) {
-        return id;
+      if (id.includes(modulePrefix + '_app')) {
+        return modulePrefix + '_app'
       }
 
-      // return id.startsWith(modulePrefix) ? id : undefined;
       return id;
     },
 
@@ -228,21 +223,9 @@ export function dependencyInjector(): Plugin {
   return {
     name: 'vitext:dependency-injector',
     enforce: 'pre',
-    resolveId(id, importer) {
-      if (id.includes('react.js') && importer?.includes('vitext/react.js')) {
-        return 'react';
-      } else if (id.includes('react.js')) {
-        return 'vitext/react';
-      }
-
-      // /@id/vitext/react
-      if (id.includes('vitext/react')) {
-        return 'vitext/react';
-      }
-    },
     async transform(code, id, ssr) {
       if (!ssr) {
-        return code
+        return code;
       }
       const [file] = id.split('?');
       if (!jsLangsRE.test(id)) return code;
@@ -253,7 +236,7 @@ export function dependencyInjector(): Plugin {
 
       await init;
       const source = (
-        await transform(code, { loader: ext as Loader, jsx: 'transform' })
+        await Esbuild.transform(code, { loader: ext as Esbuild.Loader, jsx: 'transform' })
       ).code;
 
       const imports = parse(source)[0];
@@ -261,13 +244,12 @@ export function dependencyInjector(): Plugin {
       for (let index = 0; index < imports.length; index++) {
         const { s: start, e: end } = imports[index];
         const url = source.slice(start, end);
-
-        s.overwrite(start, end, url === 'react' ? 'vitext/react.node' : url);
+        s.overwrite(start, end, url === 'react' ? 'vitext/react.node.cjs' : url);
       }
 
       return {
         code: s.toString(),
-        map: s.generateMap()
+        map: s.generateMap(),
       };
     },
   };

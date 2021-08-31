@@ -1,6 +1,7 @@
 {
   "name": "vitext",
   "version": "0.0.2",
+  "type": "module",
   "bin": {
     "vitext": "./bin/vitext.js"
   },
@@ -28,17 +29,8 @@
   },
   "homepage": "https://github.com/aslemammad/vitext",
   "scripts": {
-    "build-node": "NODE_ENV=production rollup -c rollup.config.vite.js",
-    "config:internal": "rollup -c --config-internal",
-    "config:components": "rollup -c --config-components",
-    "config:react": "rollup -c --config-react",
-    "config:dynamic": "rollup -c --config-dynamic",
-    "delete": "rollup -c --config-delete",
-    "concurrent-build": "concurrently 'yarn:config:*' 'yarn:config:* --config-declaration'",
-    "build": "cross-env-shell NODE_ENV=production \"yarn run build-node && yarn run concurrent-build\"",
-    "watch": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-build\"",
-    "watch-all": "chokidar \"src/**/*.ts\" \"src/**/*.tsx\" -c \"yarn concurrent-dev\"",
-    "dev": "cross-env-shell NODE_ENV=development \"yarn watch-all\"",
+    "build": "cross-env-shell NODE_ENV=production \"rollup -c rollup.config.js\"",
+    "dev": "cross-env-shell NODE_ENV=development \"rollup -c rollup.config.js -w\"",
     "semantic-release": "semantic-release"
   },
   "peerDependencies": {
@@ -84,32 +76,36 @@
     "jsonfile": "^6.1.0",
     "magic-string": "^0.25.7",
     "mitt": "^2.1.0",
+    "postcss": "^8.3.6",
     "prop-types": "^15.7.2",
     "querystring": "^0.2.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-helmet-async": "^1.0.9",
     "read-pkg-up": "^7.0.1",
+    "resolve": "^1.20.0",
+    "rollup": "^2.38.5",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-dts": "^3.0.2",
-    "rollup-plugin-esbuild": "0.0.0-semantic-release",
     "rollup-plugin-postcss": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.30.0",
     "selfsigned": "^1.10.11",
+    "semantic-release": "^17.4.4",
     "terser": "^5.7.1",
     "typescript": "^4.3.3",
     "use-subscription": "^1.5.1",
-    "react-helmet-async": "^1.0.9",
-    "postcss": "^8.3.6",
-    "resolve": "^1.20.0",
-    "rollup": "^2.38.5",
     "vite": "^2.4.2",
-    "semantic-release": "^17.4.4"
+    "vite-plugin-inspect": "^0.2.2"
   },
   "dependencies": {
-    "react-refresh": "^0.10.0",
-    "use-subscription": "^1.5.1",
-    "react-helmet-async": "^1.0.9",
     "esbuild": "^0.12.9",
     "postcss": "^8.3.6",
+    "react-helmet-async": "^1.0.9",
+    "react-refresh": "^0.10.0",
     "resolve": "^1.20.0",
     "rollup": "^2.38.5",
-    "vite": "^2.4.2"
+    "use-subscription": "^1.5.1",
+    "vite": "^2.4.2",
+    "vite-plugin-inspect": "^0.2.2"
   }
 }

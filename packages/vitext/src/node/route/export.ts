@@ -1,8 +1,7 @@
 import { Mutex, MutexInterface } from 'async-mutex';
 import chalk from 'chalk';
 import isEqual from 'deep-equal';
-import * as fs from 'fs';
-import { mkdirp } from 'fs-extra';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ParsedUrlQuery } from 'querystring';
 import { Manifest, ViteDevServer } from 'vite';
@@ -52,7 +51,7 @@ export async function exportPage({
   pagesModuleId,
   Document,
   App,
-  manifest
+  manifest,
 }: {
   server: ViteDevServer;
   entries: Entries;
@@ -61,7 +60,7 @@ export async function exportPage({
   pagesModuleId: string;
   Document: DocumentType;
   App: AppType;
-  manifest: Manifest
+  manifest: Manifest;
 }) {
   const mutex = new Mutex();
   try {
@@ -69,7 +68,7 @@ export async function exportPage({
       default: Component,
       getPaths,
       getProps,
-    } = await loadPage({server, entries, page });
+    } = await loadPage({ server, entries, page });
 
     if (!getPaths && getProps) {
       return;
@@ -80,16 +79,17 @@ export async function exportPage({
     }
 
     let paths: GetPathsResult<any>['paths'] | undefined;
-    let resultsArray: (
-      | Promise<GetPropsResult<ParsedUrlQuery>>
-      | GetPropsResult<ParsedUrlQuery>
-    )[];
     if (getPaths && getProps) {
       paths = (await fetchPaths({ getPaths: getPaths })).paths;
     }
 
-    resultsArray = paths
-      ? paths.map(({ params }) => fetchProps({ getProps: getProps!, params, isExporting: true }))
+    const resultsArray: (
+      | Promise<GetPropsResult<ParsedUrlQuery>>
+      | GetPropsResult<ParsedUrlQuery>
+    )[] = paths
+      ? paths.map(({ params }) =>
+          fetchProps({ getProps: getProps!, params, isExporting: true })
+        )
       : [{ props: {} }];
 
     const dir = path.join(server.config.root!, 'dist/out', page.pageName);
@@ -110,13 +110,13 @@ export async function exportPage({
           App,
           pageEntry: page,
           props: result.props,
-          manifest
+          manifest,
         }),
       };
     });
     const manifestAddress = path.join(dir, 'manifest.json');
 
-    await mkdirp(path.dirname(manifestAddress));
+    await fs.mkdirp(path.dirname(manifestAddress));
     await fs.promises.writeFile(manifestAddress, JSON.stringify([]));
 
     exportManifest.forEach(async (filePromise, id) => {
@@ -143,7 +143,7 @@ export async function exportPage({
         );
         cache.set(page.pageName, manifestJSON);
       } catch (error) {
-        console.log(
+        server.config.logger.error(
           chalk.red(`[vitext] writing to file failed. error:\n`),
           error
         );
@@ -162,9 +162,12 @@ export async function exportPage({
         if (release) release();
       }
     });
-    server.config.logger.info(chalk.green(`${page.pageName} exported successfully`), {
-      timestamp: true,
-    });
+    server.config.logger.info(
+      chalk.green(`${page.pageName} exported successfully`),
+      {
+        timestamp: true,
+      }
+    );
   } catch (error) {
     server.config.logger.error(
       chalk.red(

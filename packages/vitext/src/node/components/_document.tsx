@@ -1,7 +1,6 @@
-import React, { Component, createContext, useContext } from 'react';
-import { HelmetProvider, HelmetData, Helmet } from 'react-helmet-async';
-
-// import { htmlEscapeJsonString } from '../utils';
+import React from 'react';
+// @ts-ignore
+import Helmet from 'react-helmet-async/lib/index.js';
 
 type DocumentProps = {
   Component: React.ComponentType<any>;
@@ -9,20 +8,20 @@ type DocumentProps = {
   props: any; // fetched data
 };
 
-const DocumentContext = createContext<DocumentProps>(null as any);
+const DocumentContext = React.createContext<DocumentProps>(null as any);
 
-export class Document extends Component {
+export class Document extends React.Component {
   static renderDocument(
     DocumentComponent: typeof Document,
     props: DocumentProps
   ) {
-    const helmetContext = {} as { helmet: HelmetData };
+    const helmetContext = {} as { helmet: Helmet.HelmetData };
     return {
       Page: (
         <DocumentContext.Provider value={props}>
-          <HelmetProvider context={helmetContext}>
+          <Helmet.HelmetProvider context={helmetContext}>
             <DocumentComponent {...props} />
-          </HelmetProvider>
+          </Helmet.HelmetProvider>
         </DocumentContext.Provider>
       ),
       helmetContext,
@@ -42,15 +41,15 @@ export class Document extends Component {
 export type DocumentType = typeof Document;
 
 export function Main() {
-  const { Component } = useContext(DocumentContext);
+  const { Component } = React.useContext(DocumentContext);
   return <Component />;
 }
 
 export function Script() {
-  const { pageClientPath, props } = useContext(DocumentContext);
+  const { pageClientPath, props } = React.useContext(DocumentContext);
 
   return (
-    <Helmet>
+    <Helmet.Helmet>
       <script id="__DATA" type="application/json">
         {JSON.stringify({
           pageClientPath,
@@ -59,6 +58,6 @@ export function Script() {
           },
         })}
       </script>
-    </Helmet>
+    </Helmet.Helmet>
   );
 }

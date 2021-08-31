@@ -5,6 +5,7 @@ app.node.js
 app.d.ts
 dist
 react.js
+react.node.cjs
 react.node.js
 dynamic.js
 dynamic.d.ts

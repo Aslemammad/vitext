@@ -1,0 +1,5 @@
+{
+  "packages": ["packages/vitext"],
+  "sandboxes": ["vanilla"],
+  "node": "14"
+}
