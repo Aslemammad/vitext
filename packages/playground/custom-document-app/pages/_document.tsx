@@ -5,7 +5,6 @@ export default class extends BaseDocument {
     return (
       <>
         <Main />
-        <Script />
       </>
     );
   }
