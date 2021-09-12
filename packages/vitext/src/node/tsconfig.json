@@ -8,7 +8,18 @@
     "jsx": "react-jsx",
     "sourceMap": true,
     "rootDir": "./",
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["./"]
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "paths": {
+      "vite-plugin-ssr/plugin": [
+        "../../node_modules/vite-plugin-ssr/dist/esm/plugin/index"
+      ],
+      "vite-plugin-ssr/client/router": [
+        "../../node_modules/vite-plugin-ssr/dist/esm/client/router/index.js"
+      ],
+      "vite-plugin-ssr": [
+        "../../node_modules/vite-plugin-ssr/dist/esm/node/index"
+      ]
+    }
+  }
 }

@@ -1,3 +1,3 @@
 import { UserConfig } from 'vite';
 
-export default {} as UserConfig
+export default { build: { base: null } } as UserConfig;

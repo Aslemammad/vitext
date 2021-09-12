@@ -69,6 +69,7 @@
     "cors": "^2.8.5",
     "deep-equal": "^2.0.5",
     "es-module-lexer": "^0.7.1",
+    "express": "^4.17.1",
     "fast-glob": "^3.2.5",
     "fs-extra": "^9.1.0",
     "global": "^4.4.0",
@@ -98,6 +99,7 @@
     "vite-plugin-inspect": "^0.2.2"
   },
   "dependencies": {
+    "@rollup/plugin-typescript": "^8.2.5",
     "esbuild": "^0.12.9",
     "postcss": "^8.3.6",
     "react-helmet-async": "^1.0.9",
@@ -106,6 +108,7 @@
     "rollup": "^2.38.5",
     "use-subscription": "^1.5.1",
     "vite": "^2.4.2",
-    "vite-plugin-inspect": "^0.2.2"
+    "vite-plugin-inspect": "^0.2.2",
+    "vite-plugin-ssr": "^0.2.13"
   }
 }

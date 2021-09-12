@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import React from 'react';
 import Vite from 'vite';
+import pluginSSR from 'vite-plugin-ssr/plugin';
 import { App as BaseApp, AppType } from 'vitext/app.js';
 import { Document as BaseDocument, DocumentType } from 'vitext/document.js';
 
@@ -191,7 +192,8 @@ export async function resolveInlineConfig(
         }),
         enforce: 'post',
       },
-      ...createVitextPlugin(),
+      pluginSSR(),
+      // ...createVitextPlugin(),
       ...config.plugins,
     ],
   };

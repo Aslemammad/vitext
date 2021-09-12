@@ -93,7 +93,7 @@ cli
           clearScreen: options.clearScreen,
           server: cleanOptions(options) as Vite.ServerOptions,
         });
-        server.listen();
+        // server.listen();
       } catch (e) {
         Vite.createLogger(options.logLevel).error(
           chalk.red(`error when starting dev server:\n${e.stack}`)
