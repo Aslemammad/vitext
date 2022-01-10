@@ -94,7 +94,6 @@
     "terser": "^5.7.1",
     "typescript": "^4.3.3",
     "use-subscription": "^1.5.1",
-    "vite": "^2.4.2",
     "vite-plugin-inspect": "^0.2.2"
   },
   "dependencies": {
